@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.platform.modules.wallet.dao.WalletRechargeDao">
+
+    <!-- 字段集 -->
+    <sql id="baseSql">
+        select trade_id, user_id, user_no, phone, nickname, pay_type, amount, trade_no, order_no, create_time, update_time from wallet_recharge
+    </sql>
+
+    <!-- 查询列表字段 -->
+    <select id="queryList" resultType="com.platform.modules.wallet.domain.WalletRecharge">
+        <include refid="baseSql"/>
+        <where>
+
+        </where>
+    </select>
+
+</mapper>

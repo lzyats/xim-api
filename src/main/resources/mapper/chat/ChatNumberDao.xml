@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.platform.modules.chat.dao.ChatNumberDao">
+
+    <!-- 字段集 -->
+    <sql id="baseSql">
+        select chat_no, status from chat_number
+    </sql>
+
+    <!-- 查询列表字段 -->
+    <select id="queryList" resultType="com.platform.modules.chat.domain.ChatNumber">
+        <include refid="baseSql"/>
+        <where>
+            <if test="status != null">
+                and status = #{status.code}
+            </if>
+        </where>
+    </select>
+
+</mapper>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.platform.modules.chat.dao.ChatUserDao">
+
+    <!-- 字段集 -->
+    <sql id="baseSql">
+        select user_id, phone, user_no, nickname, portrait, gender, birthday, intro, province, city, salt, password,
+        pass, banned, special, abnormal, payment, privacy_no, privacy_phone, privacy_scan, privacy_card, privacy_group,
+        login_wx, login_ios, login_qq, on_line, create_time from chat_user
+    </sql>
+
+    <!-- 查询列表字段 -->
+    <select id="queryList" resultType="com.platform.modules.chat.domain.ChatUser">
+        <include refid="baseSql"/>
+        <where>
+        </where>
+    </select>
+
+</mapper>

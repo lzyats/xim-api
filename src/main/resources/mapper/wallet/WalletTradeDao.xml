@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.platform.modules.wallet.dao.WalletTradeDao">
+
+    <!-- 字段集 -->
+    <sql id="baseSql">
+        select trade_id, trade_type, trade_packet, trade_amount, trade_balance, trade_count, trade_remark, source_id, source_type, user_id, user_no, username, phone, portrait, group_id, group_no, group_name, receive_id, receive_no, receive_name, receive_phone, receive_phone, create_time, update_time from wallet_trade
+    </sql>
+
+    <!-- 查询列表字段 -->
+    <select id="queryList" resultType="com.platform.modules.wallet.domain.WalletTrade">
+        <include refid="baseSql"/>
+    </select>
+
+    <select id="getGroupPacket" resultType="com.platform.modules.wallet.domain.WalletTrade">
+        select trade_id, trade_type, trade_amount, trade_count, create_time
+        from wallet_trade
+        where trade_status = 1
+        and group_id = #{groupId}
+        and trade_packet = 'Y'
+        <if test="status == @com.platform.common.enums.YesOrNoEnum@YES">
+            and trade_type = '1005' and `receive_id` = #{userId}
+        </if>
+        order by create_time
+    </select>
+
+</mapper>

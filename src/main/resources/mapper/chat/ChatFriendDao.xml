@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.platform.modules.chat.dao.ChatFriendDao">
+
+    <!-- 字段集 -->
+    <sql id="baseSql">
+        select friend_id, current_id, group_id, user_id, nickname, portrait, user_no, remark, source, black, top, disturb, create_time from chat_friend
+    </sql>
+
+    <!-- 查询列表字段 -->
+    <select id="queryList" resultType="com.platform.modules.chat.domain.ChatFriend">
+        <include refid="baseSql"/>
+        <where>
+        </where>
+    </select>
+
+    <select id="getFriendList" resultType="com.platform.modules.chat.vo.FriendVo09">
+        SELECT
+        cf.user_id,
+        cf.nickname,
+        cf.portrait,
+        cf.user_no,
+        cf.remark,
+        cu.gender,
+        cu.intro,
+        cf.top,
+        cf.disturb,
+        cf.black,
+        cf.group_id,
+        'friend' AS friendType,
+        cf.source AS friendSource
+        FROM chat_friend cf
+        INNER JOIN chat_user cu ON cf.user_id = cu.user_id AND cu.deleted = 0
+        WHERE cf.current_id = #{currentId}
+        AND cf.deleted = 0
+    </select>
+
+</mapper>

@@ -1,0 +1,3 @@
+[com.platform.common.task]
+# 系统任务（每天5点执行一次）
+SysTask.cache = 0 0 5 * * ? *

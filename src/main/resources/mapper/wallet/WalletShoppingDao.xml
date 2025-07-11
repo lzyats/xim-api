@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.platform.modules.wallet.dao.WalletShoppingDao">
+
+    <!-- 字段集 -->
+    <sql id="baseSql">
+        select trade_id, user_id, user_no, phone, nickname, amount, remark, create_time from wallet_shopping
+    </sql>
+
+    <!-- 查询列表字段 -->
+    <select id="queryList" resultType="com.platform.modules.wallet.domain.WalletShopping">
+        <include refid="baseSql"/>
+        <where>
+            <!--
+            <if test="tradeId != null and tradeId != ''">
+                and trade_id = #{tradeId}
+            </if>
+            -->
+            <!--
+            <if test="userId != null and userId != ''">
+                and user_id = #{userId}
+            </if>
+            -->
+            <!--
+            <if test="userNo != null and userNo != ''">
+                and user_no = #{userNo}
+            </if>
+            -->
+            <!--
+            <if test="phone != null and phone != ''">
+                and phone = #{phone}
+            </if>
+            -->
+            <!--
+            <if test="nickname != null and nickname != ''">
+                and nickname = #{nickname}
+            </if>
+            -->
+            <!--
+            <if test="amount != null and amount != ''">
+                and amount = #{amount}
+            </if>
+            -->
+            <!--
+            <if test="remark != null and remark != ''">
+                and remark = #{remark}
+            </if>
+            -->
+            <!--
+            <if test="createTime != null and createTime != ''">
+                and create_time = #{createTime}
+            </if>
+            -->
+        </where>
+    </select>
+
+</mapper>

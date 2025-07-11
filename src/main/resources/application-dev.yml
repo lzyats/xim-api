@@ -1,0 +1,230 @@
+# 开发环境配置
+server:
+  # 服务器的HTTP端口，默认为8080
+  port: 8080
+  servlet:
+    # 应用的访问路径
+    context-path: /
+  undertow:
+    # 设置IO线程数, 它主要执行非阻塞的任务,它们会负责多个连接, 默认设置每个CPU核心一个线程
+    io-threads: 8
+    # 阻塞任务线程池, 当执行类似servlet请求阻塞操作, undertow会从这个线程池中取得线程,它的值设置取决于系统的负载
+    worker-threads: 256
+    # 以下的配置会影响buffer,这些buffer会用于服务器连接的IO操作,有点类似netty的池化内存管理
+    # 每块buffer的空间大小,越小的空间被利用越充分
+    buffer-size: 16364
+    # 是否分配的直接内存
+    direct-buffers: true
+
+# 项目相关配置
+platform:
+  # 富文本路径 示例（ Windows配置D:/platform/uploadPath，Linux配置 /home/platform/uploadPath）
+  rootPath: /home/platform/uploadPath
+  # 系统版本
+  version: 1.0.0
+  # 日志地址
+  logPath: ./logs
+  # token超时时间（天）默认30天
+  timeout: 30
+  # 跨域开关（N关Y开）
+  cors: N
+  # 敏感词过滤
+  filter: N
+  # email短信
+  email: Y
+  # 消息秘钥
+  secret: 3c17c816846c231c
+
+# 过滤器配置
+filter:
+  # 签名过滤
+  sign:
+    # 签名开关
+    enabled: N
+    # 移除前缀，比如/webApi
+    prefix: "/webApi/"
+    # appId
+    appId: 20240101
+    # 私钥
+    secret: 3e9f44aa8eaef18e
+
+# MQ配置
+rocketmq:
+  # mq开关
+  enabled: Y
+  # 服务接入地址
+  name-server: MQ_INST_1341850812983784_BZgs602v.cn-chengdu.mq.aliyuncs.com:80
+  # 生产者公共配置
+  producer:
+    # AccessKey
+    access-key: LTAI5tSE8j4h1jmXwwKTkxQL
+    # SecretKey
+    secret-key: PWJjagLg3ttRRd82CCshhVeiclu4L6
+    # 生产者组
+    group: testim
+  # 生产主题
+  topic: testim
+
+# 推送配置
+push:
+  # 个推开关
+  enabled: Y
+  # 个推appId
+  appId: 0RbcZP7qpW85LeTKqhtDw1
+  # 个推appKey
+  appKey: Tscywps0VSAKcjI4B1rEr3
+  # 个推appSecret
+  appSecret: m0wOSAPWOp6F7ormKOvD08
+  # 个推masterSecret
+  masterSecret: WXc25xbCrrAsS4ZILOl8y7
+
+# 上传配置
+upload:
+  uploadType: oss
+  serverUrl: http://kkimtest.oss-cn-shenzhen.aliyuncs.com
+  accessKey: LTAI5tSE8j4h1jmXwwKTkxQL
+  secretKey: PWJjagLg3ttRRd82CCshhVeiclu4L6
+  bucket: kkimtest
+  prefix: prefix
+  region: hoss-cn-shenzhen.aliyuncs.com
+
+## 短信配置
+sms:
+  smsType: local
+
+# 腾讯语音识别
+tencent:
+  enabled: N
+  appId: appId
+  accessKey: accessKey
+  secretKey: secretKey
+
+# 音视频通话
+rtc:
+  enabled: Y
+  appId: appId
+  secret: secret
+  expired: 86400
+
+# 支付相关配置
+pay:
+  # 支付宝配置
+  ali:
+    # 应用编号
+    appId: appId
+    # 应用私钥
+    appPrivateKey: appPrivateKey
+    # 应用公钥
+    appPublicPath: cert/test/appCertPublicKey.crt
+    # 支付宝公钥
+    aliPayPublicPath: cert/test/alipayCertPublicKey_RSA2.crt
+    # 支付宝根证书
+    aliPayRootPath: cert/test/alipayRootCert.crt
+    # 支付网关
+    serviceUrl: https://openapi.alipay.com/gateway.do
+    # 回调地址
+    notifyUrl: https://baidu.com
+  # 微信配置
+  wx:
+    # APP应用的id
+    appId: aaaaa
+    # 直连商户号
+    mchId: aaaaa
+    # 商户密钥
+    partnerKey: aaaa
+    # p12证书的位置（如果走商户秘钥形式，可以不配）
+    certPath: classpath:/cert/apiclient_cert.p12
+    # 通知回调地址
+    notifyUrl: https://baidu.com
+    # universalLink
+    universalLink: https://baidu.com
+
+# Spring配置
+spring:
+  # 资源信息
+  messages:
+    # 国际化资源文件路径
+    basename: i18n/messages
+  mvc:
+    throw-exception-if-no-handler-found: true
+  resources:
+    add-mappings: false
+  # 文件上传
+  servlet:
+    multipart:
+      # 单个文件大小
+      max-file-size: -1
+      # 设置总上传的文件大小
+      max-request-size: -1
+
+  # ShardingSphere 配置项
+  shardingsphere:
+    # 数据源配置
+    datasource:
+      # 所有数据源的名字
+      names: master
+      # 主库的数据源配置
+      master:
+        type: com.zaxxer.hikari.HikariDataSource # 使用 Hikari 数据库连接池
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql://rm-2vcq9o3ckk8z27469oo.mysql.cn-chengdu.rds.aliyuncs.com:3306/kaolaim?useAffectedRows=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&verifyServerCertificate=false&serverTimezone=GMT%2B8&allowMultiQueries=true
+        username: kaolaim
+        password: QAZ123wsx
+        hikari:
+          maximum-pool-size: 60
+    # 拓展属性配置
+    props:
+      sql:
+        # 打印 SQL
+        show: false
+    sharding:
+      # 默认数据库
+      default-data-source-name: master
+
+  # flyway配置
+  flyway:
+    # 是否启用flyway
+    enabled: false
+    # 迁移sql脚本文件存放路径，默认db/migration
+    locations: classpath:flyway
+    # 当迁移发现数据库非空且存在没有元数据的表时，自动执行基准迁移，新建schema_version表
+    baseline-on-migrate: true
+    # 是否关闭要清除已有库下的表功能,生产环境必须为true,否则会删库
+    clean-disabled: true
+    url: ${spring.shardingsphere.datasource.master.jdbc-url}
+    user: ${spring.shardingsphere.datasource.master.username}
+    password: ${spring.shardingsphere.datasource.master.password}
+
+  # redis 配置
+  redis:
+    # 开关
+    enabled: Y
+    # 地址
+    host: 127.0.0.1
+    # 端口，默认为6379
+    port: 6379
+    # 数据库
+    database: 0
+    # 密码
+    password:
+    # 超时
+    timeout: 5000
+    # 连接池
+    lettuce:
+      pool:
+        # 连接池中的最大空闲连接
+        max-idle: 128
+        # 连接池的最大数据库连接数
+        max-active: 128
+        # #连接池最大阻塞等待时间（使用负值表示没有限制）
+        max-wait: 5000
+  # redis 配置
+  other:
+    # 地址
+    host: 127.0.0.1
+    # 端口，默认为6379
+    port: 6379
+    # 数据库
+    database: 0
+    # 密码
+    password:

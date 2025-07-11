@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.platform.modules.chat.dao.ChatUserTokenDao">
+
+    <!-- 字段集 -->
+    <sql id="baseSql">
+        select id, user_id, token, device, device_type, create_time from chat_user_token
+    </sql>
+
+    <!-- 查询列表字段 -->
+    <select id="queryList" resultType="com.platform.modules.chat.domain.ChatUserToken">
+        <include refid="baseSql"/>
+        <where>
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
+            <if test="deviceType != null">
+                and device_type = #{deviceType.code}
+            </if>
+            and deleted = 0
+        </where>
+    </select>
+
+</mapper>

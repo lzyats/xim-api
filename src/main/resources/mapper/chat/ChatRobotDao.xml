@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.platform.modules.chat.dao.ChatRobotDao">
+
+    <!-- 字段集 -->
+    <sql id="baseSql">
+        select robot_id, nickname, portrait, menu from chat_robot
+    </sql>
+
+    <!-- 查询列表字段 -->
+    <select id="queryList" resultType="com.platform.modules.chat.domain.ChatRobot">
+        <include refid="baseSql"/>
+        <where>
+
+        </where>
+    </select>
+
+    <!-- 字段集 -->
+    <sql id="leftSql">
+        select a.robot_id, a.nickname, a.portrait, a.menu
+    </sql>
+
+    <select id="getRobotList" resultType="com.platform.modules.chat.domain.ChatRobot">
+        <include refid="leftSql"/>
+        , b.top
+        , b.disturb
+        FROM `chat_robot` a
+        LEFT JOIN `chat_robot_sub` b ON (a.`robot_id` = b.`robot_id` AND b.`user_id` = #{userId})
+    </select>
+
+</mapper>

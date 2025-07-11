@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.platform.modules.chat.dao.ChatPortraitDao">
+
+    <!-- 字段集 -->
+    <sql id="baseSql">
+        select id, portrait, chat_type, status from chat_portrait
+    </sql>
+
+    <!-- 查询列表字段 -->
+    <select id="queryList" resultType="com.platform.modules.chat.domain.ChatPortrait">
+        <include refid="baseSql"/>
+        <where>
+            <if test="chatType != null">
+                and chat_type = #{chatType.code}
+            </if>
+            <if test="status != null">
+                and status = #{status.code}
+            </if>
+        </where>
+    </select>
+
+</mapper>

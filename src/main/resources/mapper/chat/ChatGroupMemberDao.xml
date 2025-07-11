@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.platform.modules.chat.dao.ChatGroupMemberDao">
+
+    <!-- 字段集 -->
+    <sql id="baseSql">
+        select member_id, group_id, user_id, user_no, nickname, portrait, remark, member_type, top, disturb, member_source, packet_white, speak, create_time, speak_time from chat_group_member
+    </sql>
+
+    <!-- 查询列表字段 -->
+    <select id="queryList" resultType="com.platform.modules.chat.domain.ChatGroupMember">
+        <include refid="baseSql"/>
+        <where>
+            <if test="groupId != null">
+                and group_id = #{groupId}
+            </if>
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
+            <if test="memberType != null">
+                and member_type = #{memberType.code}
+            </if>
+            AND deleted = 0
+        </where>
+    </select>
+
+</mapper>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.platform.modules.wallet.dao.WalletTaskDao">
+
+    <!-- 字段集 -->
+    <sql id="baseSql">
+        select trade_id, trade_type, task_time, status, version, create_time, update_time from wallet_task
+    </sql>
+
+    <!-- 查询列表字段 -->
+    <select id="queryList" resultType="com.platform.modules.wallet.domain.WalletTask">
+        <include refid="baseSql"/>
+        <where>
+            <if test="status != null">
+                and status = #{status.code}
+            </if>
+            <if test="taskTime != null">
+                and task_time &lt; #{taskTime}
+            </if>
+        </where>
+    </select>
+
+</mapper>

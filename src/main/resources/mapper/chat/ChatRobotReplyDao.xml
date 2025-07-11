@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.platform.modules.chat.dao.ChatRobotReplyDao">
+
+    <!-- 字段集 -->
+    <sql id="baseSql">
+        select reply_id, robot_id, reply_type, reply_key, content from chat_robot_reply
+    </sql>
+
+    <!-- 查询列表字段 -->
+    <select id="queryList" resultType="com.platform.modules.chat.domain.ChatRobotReply">
+        <include refid="baseSql"/>
+        <where>
+            <if test="robotId != null">
+                and robot_id = #{robotId}
+            </if>
+            <if test="replyType != null">
+                and reply_type = #{replyType.code}
+            </if>
+            <if test="replyKey != null and replyKey != ''">
+                and reply_key like concat('%|', #{replyKey}, '|%')
+            </if>
+        </where>
+    </select>
+
+</mapper>

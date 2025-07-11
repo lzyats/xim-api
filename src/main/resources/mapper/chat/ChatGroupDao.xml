@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.platform.modules.chat.dao.ChatGroupDao">
+
+    <!-- 字段集 -->
+    <sql id="baseSql">
+        select group_id, group_name, group_no, banned, portrait, notice, notice_top, config_member, config_invite, config_speak, config_title, config_audit, config_media, config_assign, config_nickname, config_packet, config_amount, config_scan, config_receive, group_level, group_level_count, group_level_price, group_level_time, privacy_no, privacy_scan, privacy_name, create_time, deleted from chat_group
+    </sql>
+
+    <!-- 查询列表字段 -->
+    <select id="queryList" resultType="com.platform.modules.chat.domain.ChatGroup">
+        <include refid="baseSql"/>
+        <where>
+        </where>
+    </select>
+
+    <select id="groupList" resultType="com.platform.modules.chat.vo.GroupVo11">
+        SELECT
+            a.group_id,
+            a.group_name,
+            a.group_no,
+            a.portrait,
+            a.notice,
+            a.notice_top,
+            a.config_member,
+            a.config_invite,
+            a.config_speak,
+            a.config_title,
+            a.config_audit,
+            a.config_media,
+            a.config_assign,
+            a.config_nickname,
+            a.config_packet,
+            a.config_amount,
+            a.config_scan,
+            a.config_receive,
+            a.privacy_no,
+            a.privacy_scan,
+            a.privacy_name,
+            a.group_level_count as memberTotal,
+            b.top as memberTop,
+            b.disturb as memberDisturb,
+            b.member_type as memberType,
+            b.remark as memberRemark,
+            b.speak as memberSpeak,
+            b.packet_white as memberWhite
+            FROM `chat_group` a
+            INNER JOIN `chat_group_member` b ON a.`group_id` = b.`group_id`
+            WHERE b.`user_id` = #{userId}
+            AND a.`deleted` = 0
+            AND b.`deleted` = 0
+    </select>
+
+    <select id="querySearch" resultType="com.platform.modules.chat.domain.ChatGroup">
+    SELECT
+        a.group_id,
+        a.group_name,
+        a.group_no,
+        a.portrait,
+        a.config_audit,
+        COUNT(m.`user_id`) count
+        FROM `chat_group` a
+        left join chat_group_member m on (a.`group_id` = m.group_id AND m.`user_id` = #{userId} and m.`deleted` = 0)
+        <where>
+            AND a.`deleted` = 0
+            AND a.`privacy_name` = 'Y'
+            AND (
+                a.`group_name` like concat('%', #{param}, '%')
+                or
+                a.`group_no` = #{param}
+            )
+            GROUP BY a.`group_id`
+        </where>
+    </select>
+
+</mapper>

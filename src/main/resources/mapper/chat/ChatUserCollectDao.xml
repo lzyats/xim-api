@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.platform.modules.chat.dao.ChatUserCollectDao">
+
+    <!-- 字段集 -->
+    <sql id="baseSql">
+        select collect_id, user_id, msg_type, content, create_time from chat_user_collect
+    </sql>
+
+    <!-- 查询列表字段 -->
+    <select id="queryList" resultType="com.platform.modules.chat.domain.ChatUserCollect">
+        <include refid="baseSql"/>
+        <where>
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
+            <if test="msgType != null">
+                and msg_type = #{msgType.code}
+            </if>
+        </where>
+    </select>
+
+</mapper>

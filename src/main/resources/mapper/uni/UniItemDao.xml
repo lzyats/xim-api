@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.platform.modules.uni.dao.UniItemDao">
+
+    <!-- 字段集 -->
+    <sql id="baseSql">
+        select uni_id, app_id, name, icon, version, path, type, status from uni_item
+    </sql>
+
+    <!-- 查询列表字段 -->
+    <select id="queryList" resultType="com.platform.modules.uni.domain.UniItem">
+        <include refid="baseSql"/>
+        <where>
+            <if test="status != null">
+                and status = #{status.code}
+            </if>
+        </where>
+    </select>
+
+</mapper>

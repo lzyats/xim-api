@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.platform.modules.chat.dao.ChatRobotSubDao">
+
+    <!-- 字段集 -->
+    <sql id="baseSql">
+        select sub_id, robot_id, user_id, top, disturb from chat_robot_sub
+    </sql>
+
+    <!-- 查询列表字段 -->
+    <select id="queryList" resultType="com.platform.modules.chat.domain.ChatRobotSub">
+        <include refid="baseSql"/>
+        <where>
+
+        </where>
+    </select>
+
+</mapper>
