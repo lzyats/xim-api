@@ -4,7 +4,10 @@
 
     <!-- 字段集 -->
     <sql id="baseSql">
-        select moment_id, user_id, content, location, visibility, create_time, update_time, is_deleted from friend_moments
+        select fm.moment_id, fm.user_id, fm.content, fm.location, fm.visibility, fm.create_time, fm.update_time, fm.is_deleted,
+               cu.nickname, cu.portrait
+        from friend_moments fm
+        left join chat_user cu on fm.user_id = cu.user_id
     </sql>
 
     <!-- 查询列表字段 -->
@@ -41,16 +44,21 @@
                 and create_time = #{createTime}
             </if>
             -->
-            <!--
-            <if test="updateTime != null and updateTime != ''">
-                and update_time = #{updateTime}
-            </if>
-            -->
-            <!--
-            <if test="isDeleted != null and isDeleted != ''">
-                and is_deleted = #{isDeleted}
-            </if>
-            -->
+        </where>
+    </select>
+
+    <!-- 获取朋友圈动态并关联用户昵称和头像 -->
+    <select id="getMomentsWithUserInfo" resultType="java.util.Map">
+        <include refid="baseSql"/>
+        <where>
+            (fm.visibility = 0
+            or (fm.visibility = 1
+            and fm.user_id in (
+                select cf.current_id
+                from chat_friend cf
+                where cf.user_id = #{userId}
+            ))
+            )
         </where>
     </select>
 

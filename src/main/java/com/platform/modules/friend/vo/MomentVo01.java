@@ -28,10 +28,10 @@ import com.platform.modules.friend.domain.*;
 public class MomentVo01 {
 
     /** 动态ID，改为可选类型 */
-    private Integer momentId;
+    private Long momentId;
 
     /** 用户ID，改为可选类型 */
-    private Integer userId;
+    private Long userId;
 
     /** 用户头像，改为可选类型 */
     private String portrait;

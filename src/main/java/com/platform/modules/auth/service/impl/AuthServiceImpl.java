@@ -60,7 +60,7 @@ import javax.annotation.Resource;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-import com.platform.modules.auth.util.XianxiaNameGenerator;
+import com.platform.modules.auth.util.WuxiaNameGenerator;
 /**
  * 鉴权 服务层
  */
@@ -119,7 +119,7 @@ public class AuthServiceImpl implements AuthService {
 
     // 注入Spring管理的XianxiaNameGenerator实例
     @Autowired
-    private XianxiaNameGenerator nameGenerator;
+    private WuxiaNameGenerator wuxiaNameGenerator;
 
     @Transactional
     @Override
@@ -276,7 +276,7 @@ public class AuthServiceImpl implements AuthService {
         String userNo = chatNumberService.queryNextNo();
         String portrait = chatPortraitService.queryUserPortrait();
         //String nickname = chatConfigService.queryConfig(ChatConfigEnum.SYS_NICKNAME).getStr();
-        String nickname =nameGenerator.generateXianxiaName();
+        String nickname =wuxiaNameGenerator.generateRandomName();
         String password = CodeUtils.password();
         // 增加用户
         ChatUser chatUser = new ChatUser()
