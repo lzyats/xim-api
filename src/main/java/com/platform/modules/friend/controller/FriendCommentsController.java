@@ -32,16 +32,6 @@ public class FriendCommentsController extends BaseController {
     @Resource
     private FriendCommentsService friendCommentsService;
 
-    /**
-     * 列表数据 TODO
-     */
-    @RequiresPermissions(value = {"friend:comments:list"})
-    @GetMapping(value = "/list")
-    public TableDataInfo list(FriendComments friendComments) {
-        startPage();
-        List<FriendComments> list = friendCommentsService.queryList(friendComments);
-        return getDataTable(list);
-    }
 
     /**
      * 列表数据 TODO
@@ -64,40 +54,6 @@ public class FriendCommentsController extends BaseController {
     @GetMapping("/info/{id}")
     public AjaxResult getInfo(@PathVariable Long id) {
         return AjaxResult.success(friendCommentsService.getById(id));
-    }
-
-
-    /**
-     * 修改数据 TODO
-     */
-    @RequiresPermissions(value = {"friend:comments:edit"})
-    @AppLog(value = title, type = LogTypeEnum.EDIT)
-    @PostMapping("/edit")
-    public AjaxResult edit(@Validated @RequestBody FriendComments friendComments) {
-        friendCommentsService.updateById(friendComments);
-        return AjaxResult.successMsg("修改成功");
-    }
-
-    /**
-     * 删除数据 TODO
-     */
-    @RequiresPermissions(value = {"friend:comments:remove"})
-    @AppLog(value = title, type = LogTypeEnum.DELETE)
-    @GetMapping("/delete/{id}")
-    public AjaxResult delete(@PathVariable Long id) {
-        friendCommentsService.deleteById(id);
-        return AjaxResult.successMsg("删除成功");
-    }
-
-    /**
-     * 批量删除数据 TODO
-     */
-    @RequiresPermissions(value = {"friend:comments:remove"})
-    @AppLog(value = title, type = LogTypeEnum.DELETE)
-    @GetMapping("/deleteBatch/{ids}")
-    public AjaxResult deleteBatch(@PathVariable Long[] ids) {
-        friendCommentsService.deleteByIds(ids);
-        return AjaxResult.successMsg("删除成功");
     }
 
 

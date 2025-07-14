@@ -46,64 +46,7 @@ public class FriendMediasController extends BaseController {
         return getDataTable(list);
     }
 
-    /**
-     * 列表数据 TODO
-     */
-    @RequiresPermissions(value = {"friend:comments:list"})
-    @GetMapping(value = "/listall/{momentId}")
-    public TableDataInfo listall(@PathVariable Long momentId) {
-        QueryWrapper<FriendMedias> wrapper = new QueryWrapper<>();
-        wrapper
-                .eq("moment_id", momentId)
-                .orderByDesc("create_time");
-        List<FriendMedias> list = friendMediasService.queryList(wrapper);
-        return getDataTable(list);
-    }
 
-    /**
-     * 详细信息 TODO
-     */
-    @RequiresPermissions(value = {"friend:medias:query"})
-    @GetMapping("/info/{id}")
-    public AjaxResult getInfo(@PathVariable Long id) {
-        return AjaxResult.success(friendMediasService.getById(id));
-    }
-
-
-    /**
-     * 修改数据 TODO
-     */
-    @RequiresPermissions(value = {"friend:medias:edit"})
-    @AppLog(value = title, type = LogTypeEnum.EDIT)
-    @PostMapping("/edit")
-    public AjaxResult edit(@Validated @RequestBody FriendMedias friendMedias) {
-        // 输出字符串（多个字符，使用双引号）
-        System.out.println("Hello, World!"); // 输出字符串并换行
-        friendMediasService.updateById(friendMedias);
-        return AjaxResult.successMsg("修改成功");
-    }
-
-    /**
-     * 删除数据 TODO
-     */
-    @RequiresPermissions(value = {"friend:medias:remove"})
-    @AppLog(value = title, type = LogTypeEnum.DELETE)
-    @GetMapping("/delete/{id}")
-    public AjaxResult delete(@PathVariable Long id) {
-        friendMediasService.deleteById(id);
-        return AjaxResult.successMsg("删除成功");
-    }
-
-    /**
-     * 批量删除数据 TODO
-     */
-    @RequiresPermissions(value = {"friend:medias:remove"})
-    @AppLog(value = title, type = LogTypeEnum.DELETE)
-    @GetMapping("/deleteBatch/{ids}")
-    public AjaxResult deleteBatch(@PathVariable Long[] ids) {
-        friendMediasService.deleteByIds(ids);
-        return AjaxResult.successMsg("删除成功");
-    }
 
 
 }

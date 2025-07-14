@@ -42,9 +42,14 @@ public class FriendMomentsController extends BaseController {
      */
     @VersionRepeat(VersionEnum.V1_0_0)
     @GetMapping("/getlist/{userId}")
-    public AjaxResult getlist(@PathVariable Long userId) {
-        List<MomentVo01> momentVo01= friendMomentsService.getlist(userId);
-        return AjaxResult.success(momentVo01);
+    public AjaxResult getlist(@PathVariable Long userId,
+                              @RequestParam(defaultValue = "0") int page,
+                              @RequestParam(defaultValue = "10") int size) {
+        // 创建 Pageable 对象
+        Pageable pageable = PageRequest.of(page, size);
+        // 调用支持分页的服务方法
+        Page<MomentVo01> momentVo01Page = friendMomentsService.getlist(userId, pageable);
+        return AjaxResult.success(momentVo01Page);
     }
 
 

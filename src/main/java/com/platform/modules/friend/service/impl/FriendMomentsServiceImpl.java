@@ -104,10 +104,12 @@ public class FriendMomentsServiceImpl extends BaseServiceImpl<FriendMoments> imp
                 // 查询 friend_comments 表并赋值给 m1.comments
                 List<CommentsVo01> commentsList = friendMomentsDao.getCommentsByMomentId(momentId);
                 m1.setComments(commentsList);
-            }
-            // 设置 images, comments, likes 为空值
-            // 设置 images, comments, likes 为 null
 
+                // 处理点赞信息
+                // 查询 friend_likes 表，关联 chat_user 表，获取点赞用户的昵称
+                List<String> likes = friendMomentsDao.getLikesNicknamesByMomentId(momentId);
+                m1.setLikes(likes);
+            }
             momentVoList.add(m1);
         }
 

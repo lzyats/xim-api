@@ -43,4 +43,11 @@ public interface FriendMomentsDao extends BaseDao<FriendMoments> {
 
     List<CommentsVo01> getCommentsByMomentId(Long momentId);
 
+    /**
+     * 根据朋友圈动态 ID 获取点赞用户的昵称列表
+     * @param momentId 朋友圈动态 ID
+     * @return 点赞用户的昵称列表
+     */
+    List<String> getLikesNicknamesByMomentId(Long momentId);
+
 }
