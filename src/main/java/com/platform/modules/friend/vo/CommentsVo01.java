@@ -8,16 +8,16 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true) // 链式调用
 public class CommentsVo01 {
 
-    /** 媒体类型 */
+    /** 是否发布者 */
     private boolean  source;
 
-    /** 媒体资源 */
+    /** 评论人 */
     private String fromUser;
 
-    /** 缩略图 */
+    /** 被评论人 */
     private String toUser;
 
-    /** 缩略图 */
+    /** 评论内容 */
     private String content;
 
 }

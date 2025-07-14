@@ -2,7 +2,7 @@ package com.platform.modules.friend.vo;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
-
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.util.List;
@@ -12,6 +12,7 @@ import com.platform.modules.friend.domain.*;
 
 
 @Data
+@JsonInclude(JsonInclude.Include.NON_NULL) // 确保 null 值字段不被序列化
 @Accessors(chain = true) // 链式调用
 public class MomentVo01 {
 

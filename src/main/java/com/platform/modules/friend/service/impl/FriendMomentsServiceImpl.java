@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.platform.modules.friend.dao.FriendMomentsDao;
 import com.platform.modules.friend.domain.FriendMoments;
 import com.platform.modules.friend.service.FriendMomentsService;
-import com.platform.modules.friend.vo.MomentVo01;
+import com.platform.modules.friend.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
@@ -94,12 +94,20 @@ public class FriendMomentsServiceImpl extends BaseServiceImpl<FriendMoments> imp
 
                 // 设置处理后的时间差到 m1 对象
                 m1.setCreateTime(timeDiff);
+
+                // 处理图片列表
+                // 查询 friend_medias 表并赋值给 m1.images
+                Long momentId = (Long) moment.get("moment_id");
+                List<MediasVo01> mediasList = friendMomentsDao.getMediasByMomentId(momentId);
+                m1.setImages(mediasList);
+                // 处理评论
+                // 查询 friend_comments 表并赋值给 m1.comments
+                List<CommentsVo01> commentsList = friendMomentsDao.getCommentsByMomentId(momentId);
+                m1.setComments(commentsList);
             }
             // 设置 images, comments, likes 为空值
             // 设置 images, comments, likes 为 null
-            m1.setImages(null);
-            m1.setComments(null);
-            m1.setLikes(null);
+
             momentVoList.add(m1);
         }
 
