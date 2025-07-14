@@ -60,8 +60,7 @@ import javax.annotation.Resource;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-import java.util.Random;
-
+import com.platform.modules.auth.util.XianxiaNameGenerator;
 /**
  * 鉴权 服务层
  */
@@ -118,9 +117,9 @@ public class AuthServiceImpl implements AuthService {
     @Resource
     private SmsService smsService;
 
-    private static final int MIN_CODE_POINT = 0x4E00; // 汉字 Unicode 范围的起始值
-    private static final int MAX_CODE_POINT = 0x9FA5; // 汉字 Unicode 范围的结束值
-    private static final Random random = new Random();
+    // 注入Spring管理的XianxiaNameGenerator实例
+    @Autowired
+    private XianxiaNameGenerator nameGenerator;
 
     @Transactional
     @Override
@@ -277,7 +276,7 @@ public class AuthServiceImpl implements AuthService {
         String userNo = chatNumberService.queryNextNo();
         String portrait = chatPortraitService.queryUserPortrait();
         //String nickname = chatConfigService.queryConfig(ChatConfigEnum.SYS_NICKNAME).getStr();
-        String nickname =generateNickname(6);
+        String nickname =nameGenerator.generateXianxiaName();
         String password = CodeUtils.password();
         // 增加用户
         ChatUser chatUser = new ChatUser()
@@ -319,18 +318,5 @@ public class AuthServiceImpl implements AuthService {
         return loginUser;
     }
 
-    /**
-     * 生成指定长度的随机汉字昵称
-     * @param length 昵称的长度
-     * @return 随机生成的汉字昵称
-     */
-    public static String generateNickname(int length) {
-        StringBuilder nickname = new StringBuilder();
-        for (int i = 0; i < length; i++) {
-            int codePoint = random.nextInt(MAX_CODE_POINT - MIN_CODE_POINT + 1) + MIN_CODE_POINT;
-            nickname.appendCodePoint(codePoint);
-        }
-        return nickname.toString();
-    }
 
 }

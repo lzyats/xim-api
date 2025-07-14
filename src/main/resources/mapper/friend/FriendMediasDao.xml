@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.platform.modules.friend.dao.FriendMediasDao">
+
+    <!-- 字段集 -->
+    <sql id="baseSql">
+        select media_id, moment_id, momid, url, thumbnail, type, sort_order, width, height, duration, create_time from friend_medias
+    </sql>
+
+    <!-- 查询列表字段 -->
+    <select id="queryList" resultType="com.platform.modules.friend.domain.FriendMedias">
+        <include refid="baseSql"/>
+        <where>
+            <!--
+            <if test="mediaId != null and mediaId != ''">
+                and media_id = #{mediaId}
+            </if>
+            -->
+            <!--
+            <if test="momentId != null and momentId != ''">
+                and moment_id = #{momentId}
+            </if>
+            -->
+            <!--
+            <if test="momid != null and momid != ''">
+                and momid = #{momid}
+            </if>
+            -->
+            <!--
+            <if test="url != null and url != ''">
+                and url = #{url}
+            </if>
+            -->
+            <!--
+            <if test="thumbnail != null and thumbnail != ''">
+                and thumbnail = #{thumbnail}
+            </if>
+            -->
+            <!--
+            <if test="type != null and type != ''">
+                and type = #{type}
+            </if>
+            -->
+            <!--
+            <if test="sortOrder != null and sortOrder != ''">
+                and sort_order = #{sortOrder}
+            </if>
+            -->
+            <!--
+            <if test="width != null and width != ''">
+                and width = #{width}
+            </if>
+            -->
+            <!--
+            <if test="height != null and height != ''">
+                and height = #{height}
+            </if>
+            -->
+            <!--
+            <if test="duration != null and duration != ''">
+                and duration = #{duration}
+            </if>
+            -->
+            <!--
+            <if test="createTime != null and createTime != ''">
+                and create_time = #{createTime}
+            </if>
+            -->
+        </where>
+    </select>
+
+</mapper>

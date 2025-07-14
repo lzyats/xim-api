@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.platform.modules.friend.dao.FriendCommentsDao">
+
+    <!-- 字段集 -->
+    <sql id="baseSql">
+        select comment_id, moment_id, user_id, reply_to, content, create_time, is_deleted from friend_comments
+    </sql>
+
+    <!-- 查询列表字段 -->
+    <select id="queryList" resultType="com.platform.modules.friend.domain.FriendComments">
+        <include refid="baseSql"/>
+        <where>
+            <!--
+            <if test="commentId != null and commentId != ''">
+                and comment_id = #{commentId}
+            </if>
+            -->
+            <!--
+            <if test="momentId != null and momentId != ''">
+                and moment_id = #{momentId}
+            </if>
+            -->
+            <!--
+            <if test="userId != null and userId != ''">
+                and user_id = #{userId}
+            </if>
+            -->
+            <!--
+            <if test="replyTo != null and replyTo != ''">
+                and reply_to = #{replyTo}
+            </if>
+            -->
+            <!--
+            <if test="content != null and content != ''">
+                and content = #{content}
+            </if>
+            -->
+            <!--
+            <if test="createTime != null and createTime != ''">
+                and create_time = #{createTime}
+            </if>
+            -->
+            <!--
+            <if test="isDeleted != null and isDeleted != ''">
+                and is_deleted = #{isDeleted}
+            </if>
+            -->
+        </where>
+    </select>
+
+</mapper>
