@@ -3,22 +3,10 @@ package com.platform.modules.friend.vo;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
-
-import java.io.Serializable;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
+
 
 import com.platform.modules.friend.domain.*;
 
@@ -46,16 +34,13 @@ public class MomentVo01 {
     private String location;
 
     /** 发布时间，改为可选类型 */
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime createTime;
+    private String createTime;
 
     /** 图片列表，改为可选类型 */
-    private List<FriendMedias> images;
+    private List<MediasVo01> images;
 
     /** 评论内容，改为可选类型 */
-    private List<FriendComments> comments;
+    private List<CommentsVo01> comments;
 
     /** 点赞列表，改为可选类型 */
     private List<String> likes;

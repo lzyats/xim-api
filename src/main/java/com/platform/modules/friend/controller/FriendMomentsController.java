@@ -11,6 +11,8 @@ import com.platform.modules.friend.service.*;
 import com.platform.common.web.controller.BaseController;
 import com.platform.modules.friend.vo.*;
 
+import java.util.List;
+
 /**
  * <p>
  * 朋友圈动态表 控制层
@@ -41,7 +43,7 @@ public class FriendMomentsController extends BaseController {
     @VersionRepeat(VersionEnum.V1_0_0)
     @GetMapping("/getlist/{userId}")
     public AjaxResult getlist(@PathVariable Long userId) {
-        MomentVo01 momentVo01= friendMomentsService.getlist(userId);
+        List<MomentVo01> momentVo01= friendMomentsService.getlist(userId);
         return AjaxResult.success(momentVo01);
     }
 
