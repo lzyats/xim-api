@@ -9,5 +9,12 @@ import com.platform.common.web.service.BaseService;
  * </p>
  */
 public interface FriendLikesService extends BaseService<FriendLikes> {
+    /**
+     * 查询某点赞记录是否存在
+     * @param momentId
+     * @param userId
+     * @return
+     */
+    boolean existsByMomentIdAndUserId(Long momentId, Long userId);
 
 }

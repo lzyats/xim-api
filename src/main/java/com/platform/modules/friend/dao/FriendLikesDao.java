@@ -18,4 +18,6 @@ public interface FriendLikesDao extends BaseDao<FriendLikes> {
      */
     List<FriendLikes> queryList(FriendLikes friendLikes);
 
+    List<FriendLikes> selectByMomentIdAndUserId(Long momentId, Long userId);
+
 }

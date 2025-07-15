@@ -14,9 +14,9 @@ import java.util.List;
 public interface FriendMomentsService extends BaseService<FriendMoments> {
 
      /**
-     * 支持分页的 getlist 方法
+     * 新增
      */
-     Page<MomentVo01> getlist(Long userId, Pageable pageable);
+     List<MomentVo01> getlist(Long userId);
 
 
 

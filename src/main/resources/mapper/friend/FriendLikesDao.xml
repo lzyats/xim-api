@@ -38,5 +38,11 @@
             -->
         </where>
     </select>
+    <!-- 查询是否存在指定 momentId 和 userId 的记录 -->
+    <select id="existsByMomentIdAndUserId" parameterType="map" resultType="int">
+        SELECT COUNT(*)
+        FROM friend_likes
+        WHERE moment_id = #{momentId} AND user_id = #{userId}
+    </select>
 
 </mapper>
