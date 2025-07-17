@@ -3,10 +3,12 @@ package com.platform.modules.friend.domain;
 import com.baomidou.mybatisplus.annotation.IdType;
 import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.platform.common.web.domain.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 /**
@@ -16,6 +18,8 @@ import lombok.experimental.Accessors;
  */
 @Data
 @TableName("friend_moments")
+@NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Accessors(chain = true) // 链式调用
 public class FriendMoments extends BaseEntity {
 

@@ -10,6 +10,7 @@ import com.platform.common.exception.BaseException;
 import com.platform.common.redis.RedisUtils;
 import com.platform.common.web.domain.AjaxResult;
 import com.platform.common.web.version.VersionEnum;
+import com.platform.modules.friend.domain.FriendComments;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -83,7 +84,7 @@ public class FriendMomentsController extends BaseController {
     @PostMapping("/addlike")
     public AjaxResult addlike(@Validated @RequestBody FriendLikes friendLikes) {
         //验证缓存
-        String redisKey = REDIS_CHAT_ROBOT+"likes"+friendLikes.getMomentId()+"-"+friendLikes.getUserId();
+        String redisKey = REDIS_CHAT_ROBOT+":likes:"+friendLikes.getMomentId()+"-"+friendLikes.getUserId();
         if (redisUtils.hasKey(redisKey)) {
             return AjaxResult.fail("你已经点赞过该动态");
         }
@@ -101,8 +102,33 @@ public class FriendMomentsController extends BaseController {
         return AjaxResult.successMsg("新增成功");
     }
 
+    /**
+     * 发表评论
+     */
+    @VersionRepeat(VersionEnum.V1_0_0)
+    @AppLog(value = title, type = LogTypeEnum.ADD)
+    @PostMapping("/comment")
+    public AjaxResult comment(@Validated @RequestBody FriendComments friendComments) {
+        //限制同一条信息同一个人只能评论3条
+        String redisKey = REDIS_CHAT_ROBOT+":comment:"+friendComments.getMomentId()+"-"+friendComments.getUserId();
+        Long count = redisUtils.increment(redisKey, 1, 1, TimeUnit.DAYS);
+        if (count > 3) {
+            return AjaxResult.fail("同一信息每天最多评论3条");
+        }
+        friendCommentsService.add(friendComments);
+        return AjaxResult.successMsg("新增成功");
+    }
 
-
+    /**
+     * 发表朋友圈信息
+     */
+    @VersionRepeat(VersionEnum.V1_0_0)
+    @AppLog(value = title, type = LogTypeEnum.ADD)
+    @PostMapping("/admomnet")
+    public AjaxResult admomnet(@Validated @RequestBody MomentVo02 momentVo02) {
+        friendMomentsService.admomnet(momentVo02);
+        return AjaxResult.successMsg("新增成功");
+    }
 
 }
 

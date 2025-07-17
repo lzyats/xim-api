@@ -4,10 +4,12 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.platform.common.web.domain.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import com.fasterxml.jackson.annotation.JsonCreator;
 /**
@@ -17,6 +19,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
  */
 @Data
 @TableName("friend_comments")
+@NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Accessors(chain = true) // 链式调用
 public class FriendComments extends BaseEntity {
 

@@ -18,5 +18,10 @@ public interface FriendCommentsService extends BaseService<FriendComments> {
      */
     PageInfo queryListall(Long momentId);
 
+    /**
+     * admomnet
+     */
+
+
 
 }

@@ -102,8 +102,8 @@ tencent:
 # 音视频通话
 rtc:
   enabled: Y
-  appId: appId
-  secret: secret
+  appId: c8e5e36997ed4e4a859402640c08293e
+  secret: b41fb07096df449aa06e39551ca1d008
   expired: 86400
 
 # 支付相关配置

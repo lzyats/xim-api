@@ -1,9 +1,13 @@
 package com.platform.modules.friend.service.impl;
 
 import javax.annotation.Resource;
+
+import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.platform.modules.friend.dao.FriendMomentsDao;
+import com.platform.modules.friend.domain.FriendMedias;
 import com.platform.modules.friend.domain.FriendMoments;
+import com.platform.modules.friend.service.FriendMediasService;
 import com.platform.modules.friend.service.FriendMomentsService;
 import com.platform.modules.friend.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +32,12 @@ public class FriendMomentsServiceImpl extends BaseServiceImpl<FriendMoments> imp
 
     @Resource
     private FriendMomentsDao friendMomentsDao;
+
+    @Resource
+    private FriendMomentsService friendMomentsService;
+
+    @Resource
+    private FriendMediasService friendMediasService;
 
     @Autowired
     public void setBaseDao() {
@@ -78,18 +88,18 @@ public class FriendMomentsServiceImpl extends BaseServiceImpl<FriendMoments> imp
                 if (minutes < 1) {
                     timeDiff = "刚刚";
                 } else if (minutes < 60) {
-                    timeDiff = minutes + "分钟以前";
+                    timeDiff = minutes + "分钟前";
                 } else if (hours < 24) {
-                    timeDiff = hours + "小时以前";
+                    timeDiff = hours + "小时前";
                 } else if (days == 1) {
                     timeDiff = "昨天";
                 } else if (days < 7) {
-                    timeDiff = days + "天以前";
+                    timeDiff = days + "天前";
                 } else if (weeks == 1) {
                     timeDiff = "一周前";
                 } else {
                     // 可以根据需求继续扩展更久时间的描述
-                    timeDiff = "很久之前";
+                    timeDiff = "很久前";
                 }
 
                 // 设置处理后的时间差到 m1 对象
@@ -115,4 +125,32 @@ public class FriendMomentsServiceImpl extends BaseServiceImpl<FriendMoments> imp
 
         return momentVoList;
     }
+
+    @Override
+    public void admomnet(MomentVo02 momentVo02){
+        //添加朋友圈信息
+        FriendMoments friendMoments=new FriendMoments()
+                .setUserId(momentVo02.getUserId())
+                .setContent(momentVo02.getContent())
+                .setLocation(momentVo02.getLocation())
+                .setVisibility(momentVo02.getVisibility())
+                .setCreateTime(DateUtil.date()
+                );
+        friendMomentsService.add(friendMoments);
+        //修改媒体信息的momentId
+        Long momentId=friendMoments.getMomentId();
+        List<MediasVo02> mediasV2=momentVo02.getImages();
+        List<FriendMedias> friendMedias=new ArrayList<>();
+        for (int i = 0; i < mediasV2.size(); i++) {
+            mediasV2.get(i).setMomentId(momentId);
+            FriendMedias fm = new FriendMedias();
+            fm.setMomentId(momentId);
+            fm.setType(mediasV2.get(i).getType());
+            fm.setUrl(mediasV2.get(i).getUrl());
+            fm.setThumbnail(mediasV2.get(i).getThumbnail());
+            friendMedias.add(fm);
+        }
+        //批量添加数据
+        friendMediasService.batchAdd(friendMedias,mediasV2.size());
+    };
 }

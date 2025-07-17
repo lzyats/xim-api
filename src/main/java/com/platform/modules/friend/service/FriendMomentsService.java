@@ -14,10 +14,15 @@ import java.util.List;
 public interface FriendMomentsService extends BaseService<FriendMoments> {
 
      /**
-     * 新增
+     * 获取指定ID的朋友圈信息列表
      */
      List<MomentVo01> getlist(Long userId);
 
-
+     /**
+      * 新增朋友圈信息
+      * @param momentVo02
+      * @return
+      */
+     void admomnet(MomentVo02 momentVo02);
 
 }
