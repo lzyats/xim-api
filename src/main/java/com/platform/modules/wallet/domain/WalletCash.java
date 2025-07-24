@@ -73,4 +73,5 @@ public class WalletCash extends BaseEntity {
     public static final String COLUMN_USER_ID = "user_id";
     public static final String COLUMN_CREATE_TIME = "create_time";
 
+
 }

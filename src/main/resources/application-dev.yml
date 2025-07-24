@@ -200,13 +200,13 @@ spring:
     # 开关
     enabled: Y
     # 地址
-    host: 127.0.0.1
+    host: 192.168.109.130
     # 端口，默认为6379
     port: 6379
     # 数据库
     database: 0
     # 密码
-    password:
+    password: 123
     # 超时
     timeout: 5000
     # 连接池
@@ -221,10 +221,10 @@ spring:
   # redis 配置
   other:
     # 地址
-    host: 127.0.0.1
+    host: 192.168.109.130
     # 端口，默认为6379
     port: 6379
     # 数据库
     database: 0
     # 密码
-    password:
+    password: 123

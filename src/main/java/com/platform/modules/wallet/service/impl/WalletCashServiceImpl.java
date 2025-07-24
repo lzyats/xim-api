@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.platform.common.enums.ApproveEnum;
 import com.platform.common.enums.YesOrNoEnum;
 import com.platform.common.exception.BaseException;
+import com.platform.common.redis.RedisUtils;
 import com.platform.common.shiro.ShiroUtils;
 import com.platform.common.web.service.impl.BaseServiceImpl;
 import com.platform.modules.chat.domain.ChatConfig;
@@ -29,11 +30,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.platform.common.constant.AppConstants;
+
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import java.util.HashMap;  // 引入 HashMap 类
+import java.util.concurrent.TimeUnit;
+
 
 /**
  * <p>
@@ -59,6 +66,9 @@ public class WalletCashServiceImpl extends BaseServiceImpl<WalletCash> implement
     private HookService hookService;
 
     @Autowired
+    private RedisUtils redisUtils;
+
+    @Autowired
     public void setBaseDao() {
         super.setBaseDao(walletCashDao);
     }
@@ -73,14 +83,28 @@ public class WalletCashServiceImpl extends BaseServiceImpl<WalletCash> implement
     public WalletVo02 getConfig() {
         // 查询数据
         Map<ChatConfigEnum, ChatConfig> dataMap = chatConfigService.queryConfig();
+        // 写缓存
+        Integer expired = 60;
+        String redisKey = AppConstants.REDIS_WALLET_ROBOT+"config";
+        Map<String, Object> hashMap = new HashMap<>();
+        hashMap.put("wallet_cash_cost", dataMap.get(ChatConfigEnum.WALLET_CASH_COST).getBigDecimal().toString());
+        hashMap.put("wallet_cash_max", dataMap.get(ChatConfigEnum.WALLET_CASH_MAX).getBigDecimal().toString());
+        hashMap.put("wallet_cash_min", dataMap.get(ChatConfigEnum.WALLET_CASH_MIN).getStr());
+        hashMap.put("wallet_cash_remark", dataMap.get(ChatConfigEnum.WALLET_CASH_REMARK).getStr());
+        hashMap.put("wallet_cash_rate", dataMap.get(ChatConfigEnum.WALLET_CASH_RATE).getBigDecimal().toString());
+        hashMap.put("wallet_cash_rates", dataMap.get(ChatConfigEnum.WALLET_CASH_RATES).getBigDecimal().toString());
+        hashMap.put("wallet_cash_count", dataMap.get(ChatConfigEnum.WALLET_CASH_COUNT).getInt().toString());
+        hashMap.put("wallet_cash_auth", dataMap.get(ChatConfigEnum.WALLET_CASH_AUTH).getStr());
+        redisUtils.hPutAll(redisKey,hashMap,expired, TimeUnit.SECONDS);
         return new WalletVo02()
                 .setCost(dataMap.get(ChatConfigEnum.WALLET_CASH_COST).getBigDecimal())
                 .setMax(dataMap.get(ChatConfigEnum.WALLET_CASH_MAX).getBigDecimal())
                 .setMin(dataMap.get(ChatConfigEnum.WALLET_CASH_MIN).getBigDecimal())
                 .setRemark(dataMap.get(ChatConfigEnum.WALLET_CASH_REMARK).getStr())
                 .setRate(dataMap.get(ChatConfigEnum.WALLET_CASH_RATE).getBigDecimal())
+                .setRates(dataMap.get(ChatConfigEnum.WALLET_CASH_RATES).getBigDecimal())
                 .setCount(dataMap.get(ChatConfigEnum.WALLET_CASH_COUNT).getInt())
-                .setAuth(dataMap.get(ChatConfigEnum.WALLET_CASH_AUTH).getYesOrNo())
+                .setAuth(dataMap.get(ChatConfigEnum.WALLET_CASH_AUTH).getStr())
                 ;
     }
 

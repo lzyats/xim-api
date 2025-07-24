@@ -32,4 +32,9 @@ public class CommonVo03 {
     @NotNull(message = "短信类型不能为空")
     private MessageTypeEnum type;
 
+    /**
+     * 系统安全码
+     */
+    private String safestr;
+
 }

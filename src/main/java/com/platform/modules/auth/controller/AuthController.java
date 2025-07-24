@@ -12,6 +12,7 @@ import com.platform.common.web.domain.AjaxResult;
 import com.platform.common.web.version.VersionEnum;
 import com.platform.modules.auth.service.AuthService;
 import com.platform.modules.auth.vo.*;
+import com.platform.modules.chat.domain.ChatUser;
 import com.platform.modules.chat.service.ChatUserService;
 import com.platform.modules.common.enums.MessageTypeEnum;
 import com.platform.modules.common.service.MessageService;
@@ -52,6 +53,8 @@ public class AuthController extends BaseController {
         String email = commonVo.getEmail();
         // 类型
         MessageTypeEnum messageType = commonVo.getType();
+        // 系统安全码
+        String safestr = commonVo.getSafestr();
         // 分发
         switch (messageType) {
             case REGISTER:
@@ -63,11 +66,14 @@ public class AuthController extends BaseController {
                 break;
             case LOGIN:
             case FORGET:
+                if(safestr.isEmpty() || safestr==null){
+                    throw new BaseException("系统安全码不能为空");
+                }
                 break;
             default:
                 throw new BaseException("短信类型不正确");
         }
-        Dict data = chatUserService.sendCode(phone, email, messageType);
+        Dict data = chatUserService.sendCode(phone, email, safestr,messageType);
         return AjaxResult.success(data);
     }
 

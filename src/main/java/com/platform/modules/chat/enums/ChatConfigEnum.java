@@ -127,6 +127,10 @@ public enum ChatConfigEnum {
      */
     WALLET_CASH_RATE("wallet_cash_rate"),
     /**
+     * 钱包提现汇率
+     */
+    WALLET_CASH_RATES("wallet_cash_rates"),
+    /**
      * 钱包充值安卓开关
      */
     WALLET_RECHARGE_ANDROID("wallet_recharge_android"),

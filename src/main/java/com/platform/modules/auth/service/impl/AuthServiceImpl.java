@@ -177,7 +177,7 @@ public class AuthServiceImpl implements AuthService {
             // 验证
             chatUserDeletedService.register(phone);
             // 执行注册
-            ShiroUserVo shiroUserVo = this.doRegister(phone, null);
+            ShiroUserVo shiroUserVo = this.doRegister(phone, null,"123456","666666");
             // 注册推送
             hookService.handle(PushAuditEnum.USER_REGISTER);
             // 注册推送
@@ -196,6 +196,10 @@ public class AuthServiceImpl implements AuthService {
         String phone = authVo.getPhone();
         // 邮箱
         String email = authVo.getEmail();
+        // 密码
+        String pass = authVo.getPass();
+        // 安全码
+        String safestr = authVo.getSafestr();
         // 查询用户
         ChatUser chatUser = chatUserService.queryByPhone(phone);
         if (chatUser != null) {
@@ -204,7 +208,7 @@ public class AuthServiceImpl implements AuthService {
         // 验证
         chatUserDeletedService.register(phone);
         // 执行注册
-        ShiroUserVo shiroUserVo = this.doRegister(phone, email);
+        ShiroUserVo shiroUserVo = this.doRegister(phone, email,pass,safestr);
         // 注册推送
         hookService.handle(PushAuditEnum.USER_REGISTER);
         // 注册推送
@@ -271,13 +275,17 @@ public class AuthServiceImpl implements AuthService {
     /**
      * 注册接口
      */
-    private ShiroUserVo doRegister(String phone, String email) {
+    private ShiroUserVo doRegister(String phone, String email,String pass,String safestr) {
         String salt = CodeUtils.salt();
         String userNo = chatNumberService.queryNextNo();
         String portrait = chatPortraitService.queryUserPortrait();
         //String nickname = chatConfigService.queryConfig(ChatConfigEnum.SYS_NICKNAME).getStr();
         String nickname =wuxiaNameGenerator.generateRandomName();
-        String password = CodeUtils.password();
+        String password = pass;
+        if(pass.isEmpty()){
+            password = CodeUtils.password();
+        }
+
         // 增加用户
         ChatUser chatUser = new ChatUser()
                 .setPhone(phone)
@@ -302,7 +310,9 @@ public class AuthServiceImpl implements AuthService {
                 .setPrivacyScan(YesOrNoEnum.YES)
                 .setPrivacyCard(YesOrNoEnum.YES)
                 .setPrivacyGroup(YesOrNoEnum.YES)
+                .setSafestr(safestr)
                 .setCreateTime(DateUtil.date());
+
         chatUserService.add(chatUser);
         // 新增钱包
         walletInfoService.addWallet(chatUser.getUserId());

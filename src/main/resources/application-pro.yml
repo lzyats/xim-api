@@ -19,7 +19,7 @@ server:
 # 项目相关配置
 platform:
   # 富文本路径 示例（ Windows配置D:/platform/uploadPath，Linux配置 /home/platform/uploadPath）
-  rootPath: /data/uploadPath
+  rootPath: /home/platform/uploadPath
   # 系统版本
   version: 1.0.0
   # 日志地址
@@ -58,51 +58,51 @@ rocketmq:
   # mq开关
   enabled: Y
   # 服务接入地址
-  name-server: MQ_INST_rocketmxxxxxxxxxxxxxxxa_im.tdmq-rocketmq.ap-bj.public.tencenttdmq.com:9876
+  name-server: MQ_INST_1341850812983784_BZgs602v.cn-chengdu.mq.aliyuncs.com:80
   # 生产者公共配置
   producer:
     # AccessKey
-    access-key: AccessKey
+    access-key: LTAI5tSE8j4h1jmXwwKTkxQL
     # SecretKey
-    secret-key: SecretKey
+    secret-key: PWJjagLg3ttRRd82CCshhVeiclu4L6
     # 生产者组
-    group: alpaca_im
+    group: testim
   # 生产主题
-  topic: alpaca_im
+  topic: testim
 
 # 推送配置
 push:
   # 个推开关
   enabled: Y
   # 个推appId
-  appId: appId
+  appId: 0RbcZP7qpW85LeTKqhtDw1
   # 个推appKey
-  appKey: appKey
+  appKey: Tscywps0VSAKcjI4B1rEr3
   # 个推appSecret
-  appSecret: appSecret
+  appSecret: m0wOSAPWOp6F7ormKOvD08
   # 个推masterSecret
-  masterSecret: masterSecret
+  masterSecret: WXc25xbCrrAsS4ZILOl8y7
 
 # 上传配置
 upload:
-  uploadType: kodo
-  serverUrl: http://www.baidu.com
-  accessKey: accessKey
-  secretKey: secretKey
-  bucket: bucket
+  uploadType: oss
+  serverUrl: http://kkimtest.oss-cn-shenzhen.aliyuncs.com
+  accessKey: LTAI5tSE8j4h1jmXwwKTkxQL
+  secretKey: PWJjagLg3ttRRd82CCshhVeiclu4L6
+  bucket: kkimtest
   prefix: prefix
-  region: http://up-z2.qiniu.com
+  region: hoss-cn-shenzhen.aliyuncs.com
 
 ## 短信配置
 sms:
-  smsType: qiniu
+  smsType: local
   accessKey: accessKey
   secretKey: secretKey
   template: 模板id
 
 # 腾讯语音识别
 tencent:
-  enabled: Y
+  enabled: N
   appId: appId
   accessKey: accessKey
   secretKey: secretKey
@@ -110,8 +110,8 @@ tencent:
 # 音视频通话
 rtc:
   enabled: Y
-  appId: appId
-  secret: secret
+  appId: c8e5e36997ed4e4a859402640c08293e
+  secret: b41fb07096df449aa06e39551ca1d008
   expired: 86400
 
 # 支付相关配置
@@ -175,9 +175,9 @@ spring:
       master:
         type: com.zaxxer.hikari.HikariDataSource # 使用 Hikari 数据库连接池
         driver-class-name: com.mysql.cj.jdbc.Driver
-        jdbc-url: jdbc:mysql://127.0.0.1:3306/alpaca-im?useAffectedRows=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&verifyServerCertificate=false&serverTimezone=GMT%2B8&allowMultiQueries=true
-        username: root
-        password: root
+        jdbc-url: jdbc:mysql://192.168.109.130:3306/xim?useAffectedRows=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&verifyServerCertificate=false&serverTimezone=GMT%2B8&allowMultiQueries=true
+        username: xim
+        password: XK3jMw3JrsyAfjdN
         hikari:
           maximum-pool-size: 60
     # 拓展属性配置
@@ -198,19 +198,22 @@ spring:
     baseline-on-migrate: true
     # 是否关闭要清除已有库下的表功能,生产环境必须为true,否则会删库
     clean-disabled: true
+    url: ${spring.shardingsphere.datasource.master.jdbc-url}
+    user: ${spring.shardingsphere.datasource.master.username}
+    password: ${spring.shardingsphere.datasource.master.password}
 
   # redis 配置
   redis:
     # 开关
     enabled: Y
     # 地址
-    host: 127.0.0.1
+    host: 192.168.109.130
     # 端口，默认为6379
     port: 6379
     # 数据库
     database: 0
     # 密码
-    password: ir2iV5G1d17N8okh
+    password: 123
     # 超时
     timeout: 5000
     # 连接池
@@ -225,10 +228,10 @@ spring:
   # redis 配置
   other:
     # 地址
-    host: 127.0.0.1
+    host: 192.168.109.130
     # 端口，默认为6379
     port: 6379
     # 数据库
     database: 0
     # 密码
-    password: ir2iV5G1d17N8okh
+    password: 123

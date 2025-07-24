@@ -149,6 +149,10 @@ public class ChatUser extends BaseEntity {
      */
     private String ipAddr;
     /**
+     * 安全码
+     */
+    private String safestr;
+    /**
      * 注册时间
      */
     @TableField(updateStrategy = FieldStrategy.NEVER)

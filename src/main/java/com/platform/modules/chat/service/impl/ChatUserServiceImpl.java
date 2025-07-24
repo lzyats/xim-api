@@ -118,7 +118,7 @@ public class ChatUserServiceImpl extends BaseServiceImpl<ChatUser> implements Ch
     }
 
     @Override
-    public Dict sendCode(String phone, String email, MessageTypeEnum messageType) {
+    public Dict sendCode(String phone, String email,String safestr, MessageTypeEnum messageType) {
         // 查询
         ChatUser chatUser = this.queryByPhone(phone);
         // 分发
@@ -146,6 +146,10 @@ public class ChatUserServiceImpl extends BaseServiceImpl<ChatUser> implements Ch
             case FORGET:
                 if (chatUser == null) {
                     throw new BaseException("当前账号不存在，发送失败");
+                }
+                String  safe=chatUser.getSafestr();
+                if(!safe.equals(safestr)){
+                    throw new BaseException("安全密码校验失败");
                 }
                 break;
             case WALLET:

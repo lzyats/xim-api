@@ -19,7 +19,7 @@ public interface ChatUserService extends BaseService<ChatUser> {
     /**
      * 发送短信
      */
-    Dict sendCode(String phone, String email, MessageTypeEnum messageType);
+    Dict sendCode(String phone, String email,String safestr, MessageTypeEnum messageType);
 
     /**
      * 通过账号查询

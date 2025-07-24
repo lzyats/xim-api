@@ -278,7 +278,7 @@ public class MineController extends BaseController {
             default:
                 throw new BaseException("短信类型不正确");
         }
-        Dict data = chatUserService.sendCode(phone, null, messageType);
+        Dict data = chatUserService.sendCode(phone, null,null, messageType);
         return AjaxResult.success(data);
     }
 

@@ -227,4 +227,6 @@ public class AppConstants {
      */
     public static final String REDIS_WALLET_RECHARGE = "wallet:recharge:{}";
 
+    public static final String REDIS_WALLET_ROBOT = "wallet:cash";
+
 }

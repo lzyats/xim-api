@@ -52,7 +52,7 @@ public class WalletInfoController extends BaseController {
     @PostMapping(value = "/sendCode")
     @SubmitRepeat
     public AjaxResult sendCode(@Validated @RequestBody WalletVo04 walletVo) {
-        Dict data = chatUserService.sendCode(walletVo.getPhone(), null, MessageTypeEnum.WALLET);
+        Dict data = chatUserService.sendCode(walletVo.getPhone(), null,null, MessageTypeEnum.WALLET);
         return AjaxResult.success(data);
     }
 

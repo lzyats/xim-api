@@ -37,6 +37,12 @@ public class WalletVo02 {
     /**
      * 提现实名
      */
-    private YesOrNoEnum auth;
+    //private YesOrNoEnum auth;
+    private String auth;
+
+    /**
+     * 提现汇率
+     */
+    private BigDecimal rates;
 
 }
