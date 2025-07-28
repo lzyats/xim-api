@@ -75,9 +75,9 @@ public class WalletBankServiceImpl extends BaseServiceImpl<WalletBank> implement
         // 校验实名
         verifyAuth(current, name);
         // 校验钱包
-        verifyWallet(tradeVo.getWallet());
+        //verifyWallet(tradeVo.getWallet());
         // 绑卡数
-        Integer count = 5;
+        Integer count = 1;
         // 查询
         if (this.queryCount(new WalletBank().setUserId(current)) >= count) {
             throw new BaseException(StrUtil.format("钱包数量不能超过{}张", count));
@@ -104,7 +104,7 @@ public class WalletBankServiceImpl extends BaseServiceImpl<WalletBank> implement
         // 校验姓名
         ChatUserInfo userInfo = chatUserInfoService.getById(userId);
         if (!name.equalsIgnoreCase(userInfo.getName())) {
-            throw new BaseException("验证姓名与账号实名信息不符，绑卡失败");
+            throw new BaseException("验证姓名与账号实名信息不符，绑定钱包地址失败");
         }
     }
 

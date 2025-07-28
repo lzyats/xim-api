@@ -22,8 +22,8 @@ public class TradeVo08 {
     /**
      * 账户
      */
-    @NotBlank(message = "账户不能为空")
-    @Size(max = 200, message = "账户长度不能大于200")
+    @NotBlank(message = "钱包地址不能为空")
+    @Size(min=26,max = 36, message = "钱包地址长度不能小于26且大于36个字符")
     private String wallet;
 
     public void setName(String name) {

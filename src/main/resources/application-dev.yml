@@ -49,7 +49,7 @@ filter:
     secret: 3e9f44aa8eaef18e
 
 # MQ配置
-rocketmq:
+rocketmq1:
   # mq开关
   enabled: Y
   # 服务接入地址
@@ -60,6 +60,23 @@ rocketmq:
     access-key: LTAI5tSE8j4h1jmXwwKTkxQL
     # SecretKey
     secret-key: PWJjagLg3ttRRd82CCshhVeiclu4L6
+    # 生产者组
+    group: testim
+  # 生产主题
+  topic: testim
+
+# MQ配置
+rocketmq:
+  # mq开关
+  enabled: Y
+  # 服务接入地址
+  name-server: 110.42.56.25:9876
+  # 生产者公共配置
+  producer:
+    # AccessKey
+    access-key: admin123
+    # SecretKey
+    secret-key: MySecretKey@2025
     # 生产者组
     group: testim
   # 生产主题
@@ -79,14 +96,15 @@ push:
   masterSecret: WXc25xbCrrAsS4ZILOl8y7
 
 # 上传配置
+
+# 上传配置MINIO
 upload:
-  uploadType: oss
-  serverUrl: http://kkimtest.oss-cn-shenzhen.aliyuncs.com
-  accessKey: LTAI5tSE8j4h1jmXwwKTkxQL
-  secretKey: PWJjagLg3ttRRd82CCshhVeiclu4L6
-  bucket: kkimtest
-  prefix: prefix
-  region: hoss-cn-shenzhen.aliyuncs.com
+  uploadType: minio
+  serverUrl: http://110.42.56.25:19000
+  accessKey: minioadmin
+  secretKey: minioadmin
+  bucket: xim
+  prefix: alpaca
 
 ## 短信配置
 sms:
@@ -167,9 +185,12 @@ spring:
       master:
         type: com.zaxxer.hikari.HikariDataSource # 使用 Hikari 数据库连接池
         driver-class-name: com.mysql.cj.jdbc.Driver
-        jdbc-url: jdbc:mysql://rm-2vcq9o3ckk8z27469oo.mysql.cn-chengdu.rds.aliyuncs.com:3306/kaolaim?useAffectedRows=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&verifyServerCertificate=false&serverTimezone=GMT%2B8&allowMultiQueries=true
-        username: kaolaim
-        password: QAZ123wsx
+        #jdbc-url1: jdbc:mysql://rm-2vcq9o3ckk8z27469oo.mysql.cn-chengdu.rds.aliyuncs.com:3306/kaolaim?useAffectedRows=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&verifyServerCertificate=false&serverTimezone=GMT%2B8&allowMultiQueries=true
+        #username1: kaolaim
+        #password1: QAZ123wsx
+        jdbc-url: jdbc:mysql://110.42.56.25:3306/kaolaim?useAffectedRows=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&verifyServerCertificate=false&serverTimezone=GMT%2B8&allowMultiQueries=true
+        username: root
+        password: 35446c555b585d37
         hikari:
           maximum-pool-size: 60
     # 拓展属性配置
@@ -200,13 +221,13 @@ spring:
     # 开关
     enabled: Y
     # 地址
-    host: 192.168.109.130
+    host: 127.0.0.1
     # 端口，默认为6379
     port: 6379
     # 数据库
     database: 0
     # 密码
-    password: 123
+    password:
     # 超时
     timeout: 5000
     # 连接池
@@ -221,10 +242,10 @@ spring:
   # redis 配置
   other:
     # 地址
-    host: 192.168.109.130
+    host: 127.0.0.1
     # 端口，默认为6379
     port: 6379
     # 数据库
     database: 0
     # 密码
-    password: 123
+    password:
