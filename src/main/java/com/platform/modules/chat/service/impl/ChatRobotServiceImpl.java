@@ -3,6 +3,7 @@ package com.platform.modules.chat.service.impl;
 import com.platform.common.constant.AppConstants;
 import com.platform.common.enums.YesOrNoEnum;
 import com.platform.common.exception.BaseException;
+import com.platform.common.redis.RedisUtils;
 import com.platform.common.shiro.ShiroUtils;
 import com.platform.common.web.service.impl.BaseServiceImpl;
 import com.platform.modules.chat.dao.ChatRobotDao;
@@ -17,6 +18,8 @@ import com.platform.modules.push.dto.PushFrom;
 import com.platform.modules.push.dto.PushSetting;
 import com.platform.modules.push.enums.PushSettingEnum;
 import com.platform.modules.push.service.PushService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
@@ -27,6 +30,13 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import com.platform.common.redis.RedisJsonUtil;
+
+import java.util.Collection;
+import java.util.Collections; // 新增：用于返回空列表
+import java.util.stream.Collectors;  // 新增这行导入
 
 /**
  * <p>
@@ -46,6 +56,9 @@ public class ChatRobotServiceImpl extends BaseServiceImpl<ChatRobot> implements 
     @Resource
     private ChatRobotSubService chatRobotSubService;
 
+    @Autowired
+    private RedisJsonUtil redisJsonUtil;
+
     @Resource
     private PushService pushService;
 
@@ -53,6 +66,8 @@ public class ChatRobotServiceImpl extends BaseServiceImpl<ChatRobot> implements 
     public void setBaseDao() {
         super.setBaseDao(chatRobotDao);
     }
+
+
 
     @Override
     public List<ChatRobot> queryList(ChatRobot t) {
@@ -66,6 +81,9 @@ public class ChatRobotServiceImpl extends BaseServiceImpl<ChatRobot> implements 
         return super.getById(robotId);
     }
 
+    // 初始化日志对象（注意：这里应使用当前类的字节码对象）
+    private static final Logger logger = LoggerFactory.getLogger(ChatVersionServiceImpl.class);
+
     @Override
     public PushFrom getPushFrom(Long robotId) {
         ChatRobot chatRobot = chatRobotService.getById(robotId);
@@ -75,12 +93,43 @@ public class ChatRobotServiceImpl extends BaseServiceImpl<ChatRobot> implements 
     @Override
     public List<RobotVo01> getRobotList() {
         Long current = ShiroUtils.getUserId();
-        // 查询
+        // 缓存key（包含用户ID，避免不同用户数据混淆）
+        String redisKey = AppConstants.REDIS_COMMON_CONFIG + "robot:list:" + current;
+        // 1. 从Redis的List中获取所有数据（range 0 -1 表示获取全部元素）
+        List<ChatRobot> cacheList = redisJsonUtil.range(redisKey, 0, -1, ChatRobot.class);
+
+        // 2. 缓存存在且不为空，直接转换返回
+        if (cacheList != null && !cacheList.isEmpty()) {
+            logger.info("从Redis缓存获取getRobotList信息成功，用户ID：{}", current);
+            return cacheList.stream()
+                    .map(RobotVo01::new)
+                    .collect(Collectors.toList());
+        }
+
+        // 3. 缓存不存在，从数据库查询数据
+        logger.info("Redis缓存未命中，从数据库查询getRobotList信息，用户ID：{}", current);
         List<ChatRobot> dataList = chatRobotDao.getRobotList(current);
-        // 转换
-        return dataList.stream().collect(ArrayList::new, (x, y) -> {
-            x.add(new RobotVo01(y));
-        }, ArrayList::addAll);
+        if (dataList == null || dataList.isEmpty()) {
+            return new ArrayList<>(); // 数据库也无数据，返回空列表
+        }
+
+        // 4. 将数据库查询结果写入Redis的List（leftPushAll批量从左侧插入）
+        // 先清空可能存在的旧数据（避免残留脏数据）
+        redisJsonUtil.delete(redisKey);
+        // 循环插入每个元素
+        for (ChatRobot robot : dataList) {
+            // 此处不设置过期时间，避免重复设置，最后统一设置
+            redisJsonUtil.leftPush(redisKey, robot, null, null);
+        }
+        // 统一设置过期时间（5分钟）
+        redisJsonUtil.expire(redisKey, 300, TimeUnit.SECONDS);
+        // 设置过期时间（例如2小时，根据业务调整）
+        logger.info("数据写入Redis缓存成功，用户ID：{}，缓存key：{}", current, redisKey);
+
+        // 5. 转换并返回数据
+        return dataList.stream()
+                .map(RobotVo01::new)
+                .collect(Collectors.toList());
     }
 
     @Transactional

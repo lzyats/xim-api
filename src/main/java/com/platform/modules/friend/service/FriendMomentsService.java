@@ -1,5 +1,6 @@
 package com.platform.modules.friend.service;
 
+import com.github.pagehelper.PageInfo;
 import com.platform.modules.friend.domain.FriendMoments;
 import com.platform.common.web.service.BaseService;
 import com.platform.modules.friend.vo.*;
@@ -16,7 +17,12 @@ public interface FriendMomentsService extends BaseService<FriendMoments> {
      /**
      * 获取指定ID的朋友圈信息列表
      */
-     List<MomentVo01> getlist(Long userId);
+     PageInfo<MomentVo01> getlist(Long userId);
+
+     /**
+      * 获取指定ID的朋友圈信息列表
+      */
+     PageInfo<MomentVo01> getlistbyid(Long userId);
 
      /**
       * 新增朋友圈信息

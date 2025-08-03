@@ -9,12 +9,14 @@ import com.platform.common.exception.BaseException;
 import com.platform.common.shiro.ShiroUtils;
 import com.platform.common.web.controller.BaseController;
 import com.platform.common.web.domain.AjaxResult;
+import com.platform.common.web.page.TableDataInfo;
 import com.platform.common.web.version.VersionEnum;
 import com.platform.modules.chat.service.ChatUserInfoService;
 import com.platform.modules.chat.service.ChatUserService;
 import com.platform.modules.chat.vo.*;
 import com.platform.modules.common.enums.MessageTypeEnum;
 import com.platform.modules.common.service.MessageService;
+import com.platform.modules.chat.service.ChatUserSignService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -34,6 +36,9 @@ public class MineController extends BaseController {
 
     @Resource
     private ChatUserInfoService chatUserInfoService;
+
+    @Resource
+    private  ChatUserSignService chatUserSignService;
 
     @Resource
     private MessageService messageService;
@@ -282,4 +287,31 @@ public class MineController extends BaseController {
         return AjaxResult.success(data);
     }
 
+    /**
+     * 获取指定用户签到记录
+     */
+    @VersionRepeat(VersionEnum.V1_0_0)
+    @GetMapping("/getSignInfo")
+    public AjaxResult getSignInfo() {
+        return AjaxResult.success(chatUserSignService.getSignStats());
+    }
+
+    /**
+    * 用户签到
+     */
+    @VersionRepeat(VersionEnum.V1_0_0)
+    @GetMapping("/sign")
+    public AjaxResult sign() {
+        return AjaxResult.success(chatUserSignService.sign());
+    }
+
+    /**
+     * 用户签到列表
+     */
+    @VersionRepeat(VersionEnum.V1_0_0)
+    @GetMapping("/getSignList")
+    public TableDataInfo getSignList() {
+        startPage("createTime desc");
+        return getDataTable(chatUserSignService.getSignList());
+    }
 }

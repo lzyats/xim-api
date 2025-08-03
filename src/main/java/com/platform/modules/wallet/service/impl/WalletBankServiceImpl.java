@@ -15,11 +15,14 @@ import com.platform.modules.chat.enums.ChatConfigEnum;
 import com.platform.modules.chat.service.ChatConfigService;
 import com.platform.modules.chat.service.ChatUserInfoService;
 import com.platform.modules.chat.service.ChatUserService;
+import com.platform.modules.chat.service.impl.ChatNoticeServiceImpl;
 import com.platform.modules.wallet.dao.WalletBankDao;
 import com.platform.modules.wallet.domain.WalletBank;
 import com.platform.modules.wallet.service.WalletBankService;
 import com.platform.modules.wallet.vo.TradeVo07;
 import com.platform.modules.wallet.vo.TradeVo08;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -47,6 +50,8 @@ public class WalletBankServiceImpl extends BaseServiceImpl<WalletBank> implement
     @Resource
     private ChatConfigService chatConfigService;
 
+    private static final Logger logger = LoggerFactory.getLogger(ChatNoticeServiceImpl.class);
+
     @Autowired
     public void setBaseDao() {
         super.setBaseDao(walletBankDao);
@@ -61,6 +66,7 @@ public class WalletBankServiceImpl extends BaseServiceImpl<WalletBank> implement
     @Override
     public List<TradeVo07> queryDataList() {
         Long current = ShiroUtils.getUserId();
+        logger.info("查询钱包列表，userId: {}", current);
         WalletBank query = new WalletBank().setUserId(current);
         List<WalletBank> dataList = queryList(query);
         return dataList.stream().collect(ArrayList::new, (x, y) -> {

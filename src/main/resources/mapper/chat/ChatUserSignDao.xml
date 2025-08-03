@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.platform.modules.chat.dao.ChatUserSignDao">
+
+    <!-- 字段集 -->
+    <sql id="baseSql">
+        select signid, user_id, sign_date, reward_amount, sign_type, is_valid, create_time, update_time from chat_user_sign
+    </sql>
+
+    <!-- 查询列表字段 -->
+    <select id="queryList" resultType="com.platform.modules.chat.domain.ChatUserSign">
+        <include refid="baseSql"/>
+        <where>
+            <!--
+            <if test="signid != null and signid != ''">
+                and signid = #{signid}
+            </if>
+            -->
+            <!--
+            <if test="userId != null and userId != ''">
+                and user_id = #{userId}
+            </if>
+            -->
+            <!--
+            <if test="signDate != null and signDate != ''">
+                and sign_date = #{signDate}
+            </if>
+            -->
+            <!--
+            <if test="rewardAmount != null and rewardAmount != ''">
+                and reward_amount = #{rewardAmount}
+            </if>
+            -->
+            <!--
+            <if test="signType != null and signType != ''">
+                and sign_type = #{signType}
+            </if>
+            -->
+            <!--
+            <if test="isValid != null and isValid != ''">
+                and is_valid = #{isValid}
+            </if>
+            -->
+            <!--
+            <if test="createTime != null and createTime != ''">
+                and create_time = #{createTime}
+            </if>
+            -->
+            <!--
+            <if test="updateTime != null and updateTime != ''">
+                and update_time = #{updateTime}
+            </if>
+            -->
+        </where>
+    </select>
+
+</mapper>

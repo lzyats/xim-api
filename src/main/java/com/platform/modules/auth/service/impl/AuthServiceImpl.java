@@ -41,7 +41,9 @@ import com.platform.modules.chat.domain.ChatUser;
 import com.platform.modules.chat.enums.ChatConfigEnum;
 import com.platform.modules.chat.enums.UserLogEnum;
 import com.platform.modules.chat.service.*;
+import com.platform.modules.chat.service.impl.ChatNoticeServiceImpl;
 import com.platform.modules.common.service.HookService;
+import com.platform.modules.common.vo.CommonVo06;
 import com.platform.modules.push.dto.PushBox;
 import com.platform.modules.push.dto.PushFrom;
 import com.platform.modules.push.enums.PushAuditEnum;
@@ -51,10 +53,14 @@ import com.platform.modules.wallet.service.WalletInfoService;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authc.AuthenticationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+
+import com.platform.modules.common.service.CommonService;
 
 import javax.annotation.Resource;
 import java.util.Date;
@@ -95,6 +101,8 @@ public class AuthServiceImpl implements AuthService {
 
     @Resource
     private TokenService tokenService;
+    @Resource
+    private CommonService commonService;
 
     @Resource
     private ChatRobotService chatRobotService;
@@ -111,6 +119,9 @@ public class AuthServiceImpl implements AuthService {
     @Resource
     private ChatPortraitService chatPortraitService;
 
+    @Resource
+    private ChatUserInvService chatUserInvService;
+
     @Autowired
     private RedisUtils redisUtils;
 
@@ -120,6 +131,10 @@ public class AuthServiceImpl implements AuthService {
     // 注入Spring管理的XianxiaNameGenerator实例
     @Autowired
     private WuxiaNameGenerator wuxiaNameGenerator;
+
+    private static final Logger logger = LoggerFactory.getLogger(ChatNoticeServiceImpl.class);
+
+
 
     @Transactional
     @Override
@@ -177,7 +192,7 @@ public class AuthServiceImpl implements AuthService {
             // 验证
             chatUserDeletedService.register(phone);
             // 执行注册
-            ShiroUserVo shiroUserVo = this.doRegister(phone, null,"123456","666666");
+            ShiroUserVo shiroUserVo = this.doRegister(phone, null,"123456","666666",null);
             // 注册推送
             hookService.handle(PushAuditEnum.USER_REGISTER);
             // 注册推送
@@ -200,6 +215,8 @@ public class AuthServiceImpl implements AuthService {
         String pass = authVo.getPass();
         // 安全码
         String safestr = authVo.getSafestr();
+        // 邀请码
+        String incodes=authVo.getIncode();
         // 查询用户
         ChatUser chatUser = chatUserService.queryByPhone(phone);
         if (chatUser != null) {
@@ -208,7 +225,7 @@ public class AuthServiceImpl implements AuthService {
         // 验证
         chatUserDeletedService.register(phone);
         // 执行注册
-        ShiroUserVo shiroUserVo = this.doRegister(phone, email,pass,safestr);
+        ShiroUserVo shiroUserVo = this.doRegister(phone, email,pass,safestr,incodes);
         // 注册推送
         hookService.handle(PushAuditEnum.USER_REGISTER);
         // 注册推送
@@ -275,15 +292,40 @@ public class AuthServiceImpl implements AuthService {
     /**
      * 注册接口
      */
-    private ShiroUserVo doRegister(String phone, String email,String pass,String safestr) {
+    private ShiroUserVo doRegister(String phone, String email,String pass,String safestr,String incodes) {
         String salt = CodeUtils.salt();
         String userNo = chatNumberService.queryNextNo();
         String portrait = chatPortraitService.queryUserPortrait();
         //String nickname = chatConfigService.queryConfig(ChatConfigEnum.SYS_NICKNAME).getStr();
         String nickname =wuxiaNameGenerator.generateRandomName();
+        String incode=wuxiaNameGenerator.generateInvitationCode();
         String password = pass;
         if(pass.isEmpty()){
             password = CodeUtils.password();
+        }
+
+        Integer userDep=0;
+        String userLevel="";
+        Long parentId=0L;
+        boolean doinv=false;
+        // 执行邀请
+        if(incodes!=null || !incode.isEmpty()){
+            //查询邀请码推荐人信息
+            ChatUser chatUsert=chatUserService.queryByIncode(incodes);
+            //logger.info("获取推荐人信息，data: {}", chatUsert);
+            // 查询结果不为空则处理
+            if(chatUsert!=null){
+                // 当前用户的user_dep
+                userDep=chatUsert.getUserDep()+1;
+                String userLevel1=chatUsert.getUserLevel();
+                parentId=chatUsert.getUserId();
+                if( userLevel1==null || userLevel1.isEmpty()){
+                    userLevel=parentId.toString();
+                }else{
+                    userLevel= userLevel1 + "|"+parentId;
+                }
+                doinv=true;
+            }
         }
 
         // 增加用户
@@ -311,6 +353,10 @@ public class AuthServiceImpl implements AuthService {
                 .setPrivacyCard(YesOrNoEnum.YES)
                 .setPrivacyGroup(YesOrNoEnum.YES)
                 .setSafestr(safestr)
+                .setIncode(incode)
+                .setUserLevel(userLevel)
+                .setUserDep(userDep)
+                .setParentId(parentId)
                 .setCreateTime(DateUtil.date());
 
         chatUserService.add(chatUser);
@@ -323,6 +369,12 @@ public class AuthServiceImpl implements AuthService {
         // 生成新token
         ShiroUserVo loginUser = new ShiroUserVo(chatUser);
         tokenService.generate(loginUser);
+        // 插入邀请数据
+        if(doinv==true){
+            //获取系统推荐奖励
+            CommonVo06 vo06= commonService.getConfig();
+            chatUserInvService.invode(chatUser.getUserId(),parentId,vo06.getInvo());
+        }
         // 新增token
         chatUserTokenService.resetToken(loginUser.getUserId(), loginUser.getToken(), YesOrNoEnum.NO);
         return loginUser;

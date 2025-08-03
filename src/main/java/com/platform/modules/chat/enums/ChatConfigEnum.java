@@ -79,6 +79,18 @@ public enum ChatConfigEnum {
      */
     SYS_BEIAN("sys_beian"),
     /**
+     * 备案信息
+     */
+    SYS_INVO("sys_invo"),
+    /**
+     * 备案信息
+     */
+    SYS_SIGN("sys_sign"),
+    /**
+     * 备案信息
+     */
+    SYS_SIGNTOAL("sys_signtoal"),
+    /**
      * 注册昵称
      */
     SYS_NICKNAME("sys_nickname"),

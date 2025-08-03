@@ -54,6 +54,14 @@ public enum TradeTypeEnum {
      * 群内转账
      */
     GROUP_TRANSFER("1011", "群内转账"),
+    /**
+     * 群内转账
+     */
+    SIGN("1019", "每日签到"),
+    /**
+     * 群内转账
+     */
+    INVO("1020", "邀请奖励"),
     ;
 
     @EnumValue

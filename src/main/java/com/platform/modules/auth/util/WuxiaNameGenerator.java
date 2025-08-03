@@ -73,7 +73,33 @@ public class WuxiaNameGenerator {
             "春", "夏", "秋", "冬", "晨", "昏", "昼", "夜", "寒", "暑", "炎", "凉", "温", "柔", "刚", "烈"
     );
 
+    // 允许使用的字符集：排除了i、I、l、L、O、0、1
+    private static final String ALLOWED_CHARACTERS = "ABCDEFGHJKLMNPQRSTUVWXYZ"
+            + "abcdefghjkmnpqrstuvwxyz"
+            + "0123456789";
+
     private static final Random RANDOM = new Random();
+
+    // 无参方法（默认长度6）
+    public static String generateInvitationCode() {
+        return generateInvitationCode(6); // 调用带参方法，传入默认值
+    }
+
+    /**
+     * 生成6位随机邀请码
+     * @return 6位字母数字组合的邀请码
+     */
+    public static String generateInvitationCode(int CODE_LENGTH) {
+        StringBuilder codeBuilder = new StringBuilder(CODE_LENGTH);
+
+        for (int i = 0; i < CODE_LENGTH; i++) {
+            // 从允许的字符集中随机选择一个字符
+            int randomIndex = RANDOM.nextInt(ALLOWED_CHARACTERS.length());
+            codeBuilder.append(ALLOWED_CHARACTERS.charAt(randomIndex));
+        }
+
+        return codeBuilder.toString();
+    }
 
     /**
      * 生成随机武侠风格姓名
@@ -181,5 +207,7 @@ public class WuxiaNameGenerator {
     public static void shuffleFirstNames() {
         Collections.shuffle(UNISEX_FIRST_NAMES, RANDOM);
     }
+
+
 
 }

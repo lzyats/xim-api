@@ -110,6 +110,11 @@ public class MineVo06 {
      * QQ绑定
      */
     private YesOrNoEnum qq;
+    // 安全码
+
+    private String safestr;
+    // 邀请码
+    private String incode;
 
     public static MineVo06 init(ChatUser chatUser, String sign) {
         // 数据转换

@@ -22,6 +22,7 @@ import com.platform.common.web.service.impl.BaseServiceImpl;
 import com.platform.modules.chat.dao.ChatUserDao;
 import com.platform.modules.chat.domain.ChatConfig;
 import com.platform.modules.chat.domain.ChatUser;
+import com.platform.modules.chat.domain.ChatUserInv;
 import com.platform.modules.chat.enums.ChatConfigEnum;
 import com.platform.modules.chat.enums.UserLogEnum;
 import com.platform.modules.chat.service.*;
@@ -182,6 +183,11 @@ public class ChatUserServiceImpl extends BaseServiceImpl<ChatUser> implements Ch
             return null;
         }
         return this.queryOne(new ChatUser().setPhone(phone));
+    }
+
+    @Override
+    public ChatUser queryByIncode(String incode) {
+        return this.queryOne(new ChatUser().setIncode(incode));
     }
 
     @Transactional
@@ -534,6 +540,8 @@ public class ChatUserServiceImpl extends BaseServiceImpl<ChatUser> implements Ch
         pushSetting(ChatUser.LABEL_EMAIL, DesensitizedUtil.email(email));
     }
 
+
+
     /**
      * 获取ip
      */
@@ -557,5 +565,7 @@ public class ChatUserServiceImpl extends BaseServiceImpl<ChatUser> implements Ch
         PushSetting setting = new PushSetting(PushSettingEnum.MINE, current, label, value);
         pushService.pushSetting(setting, Arrays.asList(current));
     }
+
+
 
 }

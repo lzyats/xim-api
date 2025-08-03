@@ -12,7 +12,7 @@ public class GroupVo03 {
     @NotNull(message = "群组id不能为空")
     private Long groupId;
 
-    @Size(max = 200, message = "群组公告长度不能大于200")
+    @Size(max = 1200, message = "群组公告长度不能大于1200")
     private String notice;
 
     public void setNotice(String notice) {

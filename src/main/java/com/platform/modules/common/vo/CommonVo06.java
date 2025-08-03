@@ -51,5 +51,18 @@ public class CommonVo06 {
      */
     private Integer messageLimit;
 
+    /**
+     * 分享奖励
+     */
+    private double invo;
+
+    /**
+     * 签到奖励
+     */
+    private double sign;
+    /**
+     * 签到奖励是否计入总账
+     */
+    private YesOrNoEnum signtoal;
 
 }

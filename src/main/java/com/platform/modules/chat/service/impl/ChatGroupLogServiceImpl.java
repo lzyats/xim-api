@@ -48,6 +48,11 @@ public class ChatGroupLogServiceImpl extends BaseServiceImpl<ChatGroupLog> imple
 
     @Override
     public void addLog(Long groupId, GroupLogEnum logType, String content) {
+        // 判断 content 是否超过 200 个字符
+        if (content != null && content.length() > 200) {
+            // 如果超过 200 个字符，则截取前 200 个字符
+            content = content.substring(0, 200);
+        }
         ChatGroupLog groupLog = new ChatGroupLog()
                 .setGroupId(groupId)
                 .setLogType(logType)

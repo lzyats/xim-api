@@ -152,6 +152,27 @@ public class ChatUser extends BaseEntity {
      * 安全码
      */
     private String safestr;
+
+    /**
+     * 邀请码
+     */
+    private String incode;
+
+    /**
+     * 用户层级
+     */
+    private Integer userDep;
+
+    /**
+     * 层级关系表
+     */
+    private String userLevel;
+
+    /**
+     * 父级ID
+     */
+    private Long parentId;
+
     /**
      * 注册时间
      */

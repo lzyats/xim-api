@@ -10,8 +10,11 @@ import com.platform.common.exception.BaseException;
 import com.platform.common.redis.RedisUtils;
 import com.platform.common.web.domain.AjaxResult;
 import com.platform.common.web.version.VersionEnum;
+import com.platform.modules.chat.service.impl.ChatVersionServiceImpl;
 import com.platform.modules.friend.domain.FriendComments;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -56,6 +59,9 @@ public class FriendMomentsController extends BaseController {
 
     public static final String REDIS_CHAT_ROBOT = "friend:moments";
 
+    // 初始化日志对象（注意：这里应使用当前类的字节码对象）
+    private static final Logger logger = LoggerFactory.getLogger(ChatVersionServiceImpl.class);
+
     /**
      * 列表数据
      */
@@ -64,14 +70,38 @@ public class FriendMomentsController extends BaseController {
     public AjaxResult getlist(@PathVariable Long userId,
                               @RequestParam Integer pageNum,
                               @RequestParam(defaultValue = "10") Integer pageSize) {
+        //logger.info("查询朋友圈信息，userId:{},pageNum: {},pageSize:{}", userId,pageNum,pageSize);
+
         // 开启分页
         PageHelper.startPage(pageNum, pageSize);
-
         // 执行查询
-        List<MomentVo01> momentVo01List = friendMomentsService.getlist(userId);
+        PageInfo<MomentVo01> pageInfo = friendMomentsService.getlist(userId);  // 直接获取分页结果
 
-        // 封装分页信息
-        PageInfo<MomentVo01> pageInfo = new PageInfo<>(momentVo01List);
+
+
+        //logger.info("返回数:{}", pageInfo);
+
+        return AjaxResult.success(pageInfo);
+    }
+
+    /**
+     * 列表数据
+     */
+    @VersionRepeat(VersionEnum.V1_0_0)
+    @GetMapping("/getlistbyid/{userId}")
+    public AjaxResult getlistbyid(@PathVariable Long userId,
+                              @RequestParam Integer pageNum,
+                              @RequestParam(defaultValue = "10") Integer pageSize) {
+        //logger.info("查询朋友圈信息，userId:{},pageNum: {},pageSize:{}", userId,pageNum,pageSize);
+
+        // 开启分页
+        PageHelper.startPage(pageNum, pageSize);
+        // 执行查询
+        PageInfo<MomentVo01> pageInfo = friendMomentsService.getlistbyid(userId);  // 直接获取分页结果
+
+
+
+        //logger.info("返回数:{}", pageInfo);
 
         return AjaxResult.success(pageInfo);
     }
@@ -83,6 +113,7 @@ public class FriendMomentsController extends BaseController {
     @AppLog(value = title, type = LogTypeEnum.ADD)
     @PostMapping("/addlike")
     public AjaxResult addlike(@Validated @RequestBody FriendLikes friendLikes) {
+        logger.info("点赞朋友圈信息：{}", friendLikes);
         //验证缓存
         String redisKey = REDIS_CHAT_ROBOT+":likes:"+friendLikes.getMomentId()+"-"+friendLikes.getUserId();
         if (redisUtils.hasKey(redisKey)) {
@@ -109,10 +140,11 @@ public class FriendMomentsController extends BaseController {
     @AppLog(value = title, type = LogTypeEnum.ADD)
     @PostMapping("/comment")
     public AjaxResult comment(@Validated @RequestBody FriendComments friendComments) {
+        logger.info("评论朋友圈信息：{}", friendComments);
         //限制同一条信息同一个人只能评论3条
         String redisKey = REDIS_CHAT_ROBOT+":comment:"+friendComments.getMomentId()+"-"+friendComments.getUserId();
         Long count = redisUtils.increment(redisKey, 1, 1, TimeUnit.DAYS);
-        if (count > 3) {
+        if (count > 5) {
             return AjaxResult.fail("同一信息每天最多评论3条");
         }
         friendCommentsService.add(friendComments);

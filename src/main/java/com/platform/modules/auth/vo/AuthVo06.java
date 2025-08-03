@@ -40,4 +40,10 @@ public class AuthVo06 {
     @NotBlank(message = "系统安全码不能为空")
     private String safestr;
 
+
+    /**
+     *  邀请码
+     */
+    private String incode;
+
 }

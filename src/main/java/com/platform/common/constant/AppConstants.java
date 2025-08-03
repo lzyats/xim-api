@@ -228,5 +228,19 @@ public class AppConstants {
     public static final String REDIS_WALLET_RECHARGE = "wallet:recharge:{}";
 
     public static final String REDIS_WALLET_ROBOT = "wallet:cash";
+    /**
+     * 公告缓存
+     */
+    public static final String REDIS_COMMON_NOTIC= "common:notic";
+
+    public static final String REDIS_COMMON_CONFIG= "common:config";
+
+    /**
+     * 钱包余额
+     */
+    public static final String REDIS_WALLET_INFO= "wallet:recharge:";
+    public static final String REDIS_WALLET_BANK= "wallet:bank:";
+
+    public static final String REDIS_MINE_SIGN= "mine:sign:";
 
 }

@@ -126,4 +126,9 @@ public interface ChatUserService extends BaseService<ChatUser> {
      */
     void editEmail(String email);
 
+    /**
+     * 通过邀请码查询
+     */
+    ChatUser queryByIncode(String incode);
+
 }

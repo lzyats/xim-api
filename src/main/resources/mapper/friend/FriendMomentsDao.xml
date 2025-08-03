@@ -48,15 +48,16 @@
     </select>
 
     <!-- 获取朋友圈动态并关联用户昵称和头像 -->
+    <!-- 查询结果为：1广场可见信息 2自己发布的朋友圈信息 3自己的好友朋友圈信息 -->
     <select id="getMomentsWithUserInfo" resultType="java.util.Map">
         <include refid="baseSql"/>
         <where>
-            (fm.visibility = 0
-            or (fm.visibility = 1
+            (fm.visibility = 0 or (fm.user_id=#{userId})
+            or (fm.visibility = 1 and fm.user_id!=#{userId}
             and fm.user_id in (
-                select cf.current_id
-                from chat_friend cf
-                where cf.user_id = #{userId}
+            select cf.current_id
+            from chat_friend cf
+            where cf.user_id = #{userId}
             ))
             )
         </where>
@@ -85,6 +86,18 @@
         FROM friend_likes
         JOIN chat_user ON chat_user.user_id = friend_likes.user_id
         WHERE friend_likes.moment_id = #{momentId}
+    </select>
+
+    <!-- 新增查询：根据userId查询存在媒体的朋友圈动态（关联用户信息，且排除visibility=2的记录） -->
+    <select id="getMomentsById" resultType="java.util.Map">
+        <include refid="baseSql"/>
+        INNER JOIN (SELECT DISTINCT moment_id FROM friend_medias) fm2
+        ON fm.moment_id = fm2.moment_id  <!-- 子查询去重媒体记录，避免重复关联 -->
+        <where>
+            fm.user_id = #{userId}
+            AND fm.visibility != 2
+        </where>
+        ORDER BY fm.create_time DESC
     </select>
 
 </mapper>

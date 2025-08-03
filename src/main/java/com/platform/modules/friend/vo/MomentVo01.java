@@ -1,14 +1,16 @@
 package com.platform.modules.friend.vo;
 
+
 import lombok.Data;
 import lombok.experimental.Accessors;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
 import java.util.List;
+import lombok.Data;
+import java.util.Date;
 
 
-import com.platform.modules.friend.domain.*;
+
 
 
 @Data
@@ -35,7 +37,7 @@ public class MomentVo01 {
     private String location;
 
     /** 发布时间，改为可选类型 */
-    private String createTime;
+    private Date createTime;
 
     /** 图片列表，改为可选类型 */
     private List<MediasVo01> images;
