@@ -37,10 +37,18 @@ import java.util.stream.Collectors;
 import java.util.Date;
 import java.util.HashMap;  // 导入HashMap
 
-import java.text.SimpleDateFormat;
+
 import java.util.Locale;
-import java.util.stream.Collectors;
 import java.math.BigDecimal;
+
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 /**
  * <p>
@@ -110,31 +118,27 @@ public class ChatUserSignServiceImpl extends BaseServiceImpl<ChatUserSign> imple
         // 查询符合条件的所有记录
         List<ChatUserSign> signList = this.queryList(wrapper);
         //logger.error("查询签到数据: {}", signList);
-        if(!signList.isEmpty()){
-            // 计算reward_amount的总和
-            // 正确写法：先以BigDecimal累加，最后转换为double
+        if (!signList.isEmpty()) {
+            // 计算奖励总和（使用Java 8 Stream API）
             totalReward = signList.stream()
-                    // 直接提取原有类型（假设是Double）
-                    .map(chatUserSign -> chatUserSign.getRewardAmount())
-                    // 过滤null值（如果是Double包装类型可能为null）
+                    .map(ChatUserSign::getRewardAmount)
                     .filter(amount -> amount != null)
-                    // 转换为double基本类型流
                     .mapToDouble(Double::doubleValue)
-                    // 累加计算总和（默认初始值0.0）
                     .sum();
 
-            // 修正集合类型为 String（yyyy-MM-dd 格式）
+            // 定义东8区时区和日期格式化器（线程安全）
+            ZoneId asiaShanghai = ZoneId.of("Asia/Shanghai");
+            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.CHINA)
+                    .withZone(asiaShanghai);
+
+            // 格式化日期为字符串（使用Java 8时间API）
             signDates = signList.stream()
-                    .map(chatUserSign -> {
-                        Date date = chatUserSign.getSignDate();
-                        if (date == null) {
-                            return null;
-                        }
-                        // 格式化 Date 为 yyyy-MM-dd 字符串
-                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
-                        return sdf.format(date);
-                    })
-                    .filter(dateStr -> dateStr != null)  // 过滤空值
+                    .map(ChatUserSign::getSignDate)
+                    .filter(date -> date != null)
+                    // 将Date转换为Instant，再转换为东8区的日期
+                    .map(date -> date.toInstant().atZone(asiaShanghai))
+                    // 使用预定义的格式化器进行格式化
+                    .map(dateFormatter::format)
                     .collect(Collectors.toList());
         }
 
@@ -154,7 +158,14 @@ public class ChatUserSignServiceImpl extends BaseServiceImpl<ChatUserSign> imple
     @Override
     public Map<String, Object> sign() {
         Long userId = ShiroUtils.getUserId();
-        Date today = DateUtil.beginOfDay(new Date()); // 获取今天0点时间
+        ZoneId zoneId = ZoneId.of("Asia/Shanghai");
+        // 获取当前东8区时间的当天0点
+        ZonedDateTime todayStart = ZonedDateTime.now(zoneId)
+                .toLocalDate()
+                .atStartOfDay(zoneId);
+        // 转换为Date
+        Date today = Date.from(todayStart.toInstant());
+        //Date today = DateUtil.beginOfDay(new Date()); // 获取今天0点时间
         logger.error("开始签到: userId{},today{}", userId,today);
         // 1. 检查用户今天是否已签到
         String redisKey = AppConstants.REDIS_MINE_SIGN + userId;
