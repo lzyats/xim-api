@@ -6,7 +6,7 @@
     <sql id="baseSql">
         select user_id, phone, user_no, nickname, portrait, gender, birthday, intro, province, city, salt, password,
         pass, banned, special, abnormal, payment, privacy_no, privacy_phone, privacy_scan, privacy_card, privacy_group,
-        login_wx, login_ios, login_qq, on_line, create_time, safestr, incode ,user_dep ,user_level ,parent_id from chat_user
+        login_wx, login_ios, login_qq, on_line, create_time, safestr, incode ,user_dep ,user_level ,parent_id ,isvip from chat_user
     </sql>
 
     <!-- 查询列表字段 -->

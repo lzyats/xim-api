@@ -116,6 +116,9 @@ public class MineVo06 {
     // 邀请码
     private String incode;
 
+    // VIP级别
+    private int isvip;
+
     public static MineVo06 init(ChatUser chatUser, String sign) {
         // 数据转换
         String phone = chatUser.getPhone();
