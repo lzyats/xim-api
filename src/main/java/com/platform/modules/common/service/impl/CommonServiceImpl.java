@@ -130,6 +130,8 @@ public class CommonServiceImpl implements CommonService {
                 .setInvo(dataMap.get(ChatConfigEnum.SYS_INVO).getBigDecimal().doubleValue())
                 .setSign(dataMap.get(ChatConfigEnum.SYS_SIGN).getBigDecimal().doubleValue())
                 .setSigntoal(dataMap.get(ChatConfigEnum.SYS_SIGNTOAL).getYesOrNo())
+                .setCashname(dataMap.get(ChatConfigEnum.SYS_CASHNAME).getStr())
+                .setCashstr(dataMap.get(ChatConfigEnum.SYS_CASHSTR).getStr())
                 ;
 
 

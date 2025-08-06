@@ -33,6 +33,18 @@ public class ChatUserInv extends BaseEntity {
      */
     private Long userInid;
     /**
+     * 推荐人ID
+     */
+    private String userNo;
+    /**
+     * 推荐人Iphone
+     */
+    private String phone;
+    /**
+     * 推荐人Iphone
+     */
+    private String nickname;
+    /**
      * 推荐层级
      */
     private Double invUsdt;

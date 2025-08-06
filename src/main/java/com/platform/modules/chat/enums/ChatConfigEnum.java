@@ -91,6 +91,14 @@ public enum ChatConfigEnum {
      */
     SYS_SIGNTOAL("sys_signtoal"),
     /**
+     * 货币单位
+     */
+    SYS_CASHNAME("sys_cashname"),
+    /**
+     * 货币符号
+     */
+    SYS_CASHSTR("sys_cashstr"),
+    /**
      * 注册昵称
      */
     SYS_NICKNAME("sys_nickname"),

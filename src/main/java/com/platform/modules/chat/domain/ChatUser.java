@@ -184,6 +184,11 @@ public class ChatUser extends BaseEntity {
     @TableLogic
     private Integer deleted;
 
+    /**
+     * 是否VIP，0普通1VIP
+     */
+    private Integer isvip;
+
     public ChatUser(Long userId) {
         this.userId = userId;
     }

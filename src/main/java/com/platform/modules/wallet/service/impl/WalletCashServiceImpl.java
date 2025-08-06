@@ -16,6 +16,7 @@ import com.platform.modules.chat.domain.ChatUser;
 import com.platform.modules.chat.enums.ChatConfigEnum;
 import com.platform.modules.chat.service.ChatConfigService;
 import com.platform.modules.chat.service.ChatUserService;
+import com.platform.modules.chat.service.impl.ChatNoticeServiceImpl;
 import com.platform.modules.common.service.HookService;
 import com.platform.modules.push.enums.PushAuditEnum;
 import com.platform.modules.wallet.dao.WalletCashDao;
@@ -26,6 +27,8 @@ import com.platform.modules.wallet.service.WalletCashService;
 import com.platform.modules.wallet.service.WalletTradeService;
 import com.platform.modules.wallet.vo.WalletVo02;
 import com.platform.modules.wallet.vo.WalletVo06;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,6 +71,8 @@ public class WalletCashServiceImpl extends BaseServiceImpl<WalletCash> implement
     @Autowired
     private RedisUtils redisUtils;
 
+    private static final Logger logger = LoggerFactory.getLogger(ChatNoticeServiceImpl.class);
+
     @Autowired
     public void setBaseDao() {
         super.setBaseDao(walletCashDao);
@@ -81,11 +86,26 @@ public class WalletCashServiceImpl extends BaseServiceImpl<WalletCash> implement
 
     @Override
     public WalletVo02 getConfig() {
-        // 查询数据
-        Map<ChatConfigEnum, ChatConfig> dataMap = chatConfigService.queryConfig();
         // 写缓存
         Integer expired = 60;
         String redisKey = AppConstants.REDIS_WALLET_ROBOT+"config";
+        // 先从缓存获取
+        Map<Object, Object> cacheMap = redisUtils.hEntries(redisKey);
+        // 如果缓存存在且不为空，直接从缓存构建返回对象
+        if (cacheMap != null && !cacheMap.isEmpty()) {
+            return new WalletVo02()
+                    .setCost(new BigDecimal(cacheMap.get("wallet_cash_cost").toString()))
+                    .setMax(new BigDecimal(cacheMap.get("wallet_cash_max").toString()))
+                    .setMin(new BigDecimal(cacheMap.get("wallet_cash_min").toString()))
+                    .setRemark(cacheMap.get("wallet_cash_remark").toString())
+                    .setRate(new BigDecimal(cacheMap.get("wallet_cash_rate").toString()))
+                    .setRates(new BigDecimal(cacheMap.get("wallet_cash_rates").toString()))
+                    .setCount(Integer.parseInt(cacheMap.get("wallet_cash_count").toString()))
+                    .setAuth(cacheMap.get("wallet_cash_auth").toString());
+        }
+        // 查询数据
+        Map<ChatConfigEnum, ChatConfig> dataMap = chatConfigService.queryConfig();
+
         Map<String, Object> hashMap = new HashMap<>();
         hashMap.put("wallet_cash_cost", dataMap.get(ChatConfigEnum.WALLET_CASH_COST).getBigDecimal().toString());
         hashMap.put("wallet_cash_max", dataMap.get(ChatConfigEnum.WALLET_CASH_MAX).getBigDecimal().toString());

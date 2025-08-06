@@ -16,7 +16,7 @@ public interface ChatUserInvService extends BaseService<ChatUserInv> {
     /**
      * 执行邀请
      */
-    void invode(Long userId, Long userInid, double invUsdt);
+    void invode(ChatUserInv chatUserInv);
 
 
 }

@@ -64,5 +64,15 @@ public class CommonVo06 {
      * 签到奖励是否计入总账
      */
     private YesOrNoEnum signtoal;
+    /**
+     * 货币名称
+     */
+    private String cashname;
+    /**
+     * 货币符号
+     */
+    private String cashstr;
+
+
 
 }

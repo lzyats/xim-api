@@ -93,7 +93,7 @@ public class ChatUserSignServiceImpl extends BaseServiceImpl<ChatUserSign> imple
         wrapper.ge(ChatUserSign.COLUMN_CREATE_TIME, DateUtil.offsetMonth(DateUtil.date(), -3));
 
         List<ChatUserSign> dataList = this.queryList(wrapper);
-        logger.error("查询签到数据: {}", dataList);
+        //logger.error("查询签到数据: {}", dataList);
         List<MineSignVo01> dictList = dataList.stream().collect(ArrayList::new, (x, y) -> {
             x.add(new MineSignVo01(y));
         }, ArrayList::addAll);

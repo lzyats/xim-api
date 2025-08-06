@@ -25,6 +25,12 @@ public class AuthVo06 {
     /**
      * 邮箱
      */
+    @NotBlank(message = "昵称不能为空")
+    private String nickname;
+
+    /**
+     * 邮箱
+     */
     @NotBlank(message = "密码不能为空")
     private String pass;
 

@@ -58,13 +58,13 @@ rocketmq:
   # mq开关
   enabled: Y
   # 服务接入地址
-  name-server: MQ_INST_1341850812983784_BZgs602v.cn-chengdu.mq.aliyuncs.com:80
+  name-server: sdfsdfdsfdsfdsf.cn-dfdsfngdsfdu.mq.aliyuncs.com:80
   # 生产者公共配置
   producer:
     # AccessKey
-    access-key: LTAI5tSE8j4h1jmXwwKTkxQL
+    access-key: sdfdsfsdfsdfsdf
     # SecretKey
-    secret-key: PWJjagLg3ttRRd82CCshhVeiclu4L6
+    secret-key: sdfdsfdsfdsfdsf
     # 生产者组
     group: testim
   # 生产主题
@@ -75,21 +75,21 @@ push:
   # 个推开关
   enabled: Y
   # 个推appId
-  appId: 0RbcZP7qpW85LeTKqhtDw1
+  appId: sdfdsfsdfsdf
   # 个推appKey
-  appKey: Tscywps0VSAKcjI4B1rEr3
+  appKey: sdfsdfds
   # 个推appSecret
-  appSecret: m0wOSAPWOp6F7ormKOvD08
+  appSecret: sdfsdfsdfsdf
   # 个推masterSecret
-  masterSecret: WXc25xbCrrAsS4ZILOl8y7
+  masterSecret: WXc25xbCrsdfsdfrAsS4ZIL8y7
 
 # 上传配置
 upload:
   uploadType: oss
-  serverUrl: http://kkimtest.oss-cn-shenzhen.aliyuncs.com
-  accessKey: LTAI5tSE8j4h1jmXwwKTkxQL
-  secretKey: PWJjagLg3ttRRd82CCshhVeiclu4L6
-  bucket: kkimtest
+  serverUrl: http://sdfsdfdsfds.oss-cn-shesnzhen.aliyuncs.com
+  accessKey: sdfdsfdsfdsfsd
+  secretKey: sdfsdfdsfdsf
+  bucket: sdfdsfsd
   prefix: prefix
   region: hoss-cn-shenzhen.aliyuncs.com
 
@@ -109,9 +109,9 @@ tencent:
 
 # 音视频通话
 rtc:
-  enabled: Y
-  appId: c8e5e36997ed4e4a859402640c08293e
-  secret: b41fb07096df449aa06e39551ca1d008
+  enabled: N
+  appId: c8e5e36997edsdfdsfdsfdsfdsf
+  secret: b41fb07096df449aa06e39dsfdsfsdf08
   expired: 86400
 
 # 支付相关配置
@@ -177,7 +177,7 @@ spring:
         driver-class-name: com.mysql.cj.jdbc.Driver
         jdbc-url: jdbc:mysql://192.168.109.130:3306/xim?useAffectedRows=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&verifyServerCertificate=false&serverTimezone=GMT%2B8&allowMultiQueries=true
         username: xim
-        password: XK3jMw3JrsyAfjdN
+        password: sdfdsfsdfdsf
         hikari:
           maximum-pool-size: 60
     # 拓展属性配置

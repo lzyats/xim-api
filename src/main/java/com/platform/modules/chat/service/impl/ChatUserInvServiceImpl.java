@@ -44,12 +44,7 @@ public class ChatUserInvServiceImpl extends BaseServiceImpl<ChatUserInv> impleme
      * 执行邀请
      */
     @Override
-    public void invode(Long userId, Long userInid, double invUsdt){
-        ChatUserInv chatUserInv=new ChatUserInv()
-                .setUserId(userId)
-                .setUserInid(userInid)
-                .setInvUsdt(invUsdt)
-                .setCreateTime(DateUtil.date());
+    public void invode(ChatUserInv chatUserInv){
         chatUserInvService.add(chatUserInv);
     }
 
