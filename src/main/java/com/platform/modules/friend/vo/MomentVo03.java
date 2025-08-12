@@ -1,6 +1,8 @@
 package com.platform.modules.friend.vo;
 
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -39,7 +41,8 @@ public class MomentVo03 {
     private int visibility;
 
     /** 可见人列表 */
-    private String visuser;
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private List<String> visuser;
 
     /** 图片列表，改为可选类型 */
     private List<MediasVo01> images;

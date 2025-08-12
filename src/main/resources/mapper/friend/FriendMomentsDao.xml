@@ -128,10 +128,37 @@
     </select>
 
     <!-- 新增查询：根据momentId查询朋友圈动态 -->
-    <select id="getMomentsByMomentId" resultType="com.platform.modules.friend.vo.MomentVo03">
-        <include refid="baseSql"/>
+    <resultMap id="MomentVo03Map" type="com.platform.modules.friend.vo.MomentVo03">
+        <!-- 动态ID（对应数据库moment_id） -->
+        <id column="moment_id" property="momentId" jdbcType="BIGINT"/>
+
+        <!-- 用户ID（对应数据库user_id） -->
+        <result column="user_id" property="userId" jdbcType="BIGINT"/>
+
+        <!-- 动态正文（对应数据库content） -->
+        <result column="content" property="content" jdbcType="VARCHAR"/>
+        <result column="nickname" property="nickname" jdbcType="VARCHAR"/>
+        <result column="portrait" property="portrait" jdbcType="VARCHAR"/>
+
+        <!-- 位置信息（对应数据库location） -->
+        <result column="location" property="location" jdbcType="VARCHAR"/>
+
+        <!-- 发布时间（类中为Date类型，使用DateTypeHandler） -->
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"
+                typeHandler="org.apache.ibatis.type.DateTypeHandler"/>
+
+        <!-- 可见人群（对应数据库visibility，类中为int类型） -->
+        <result column="visibility" property="visibility" jdbcType="TINYINT"/>
+
+        <!-- 可见人列表（JSON转换） -->
+        <result column="visuser" property="visuser"
+                typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+    </resultMap>
+    <!-- 查询语句使用 resultMap -->
+    <select id="getMomentsByMomentId" resultMap="MomentVo03Map">
+        <include refid="baseSql"/>  <!-- 使用baseSql包含关联表查询 -->
         <where>
-            moment_id = #{momentId}
+            fm.moment_id = #{momentId}  <!-- 注意加表别名fm -->
         </where>
     </select>
 
@@ -168,7 +195,7 @@
 
         UNION
 
-        <!-- 情况5：visibility为4时，返回当前用户的好友中不在visuser中的ID -->
+        <!-- 情况5：visibility为4时，返回不在visuser中的好友ID -->
         SELECT cf.user_id
         FROM chat_friend cf,
         (SELECT visibility, user_id AS moment_user_id, visuser
@@ -176,8 +203,8 @@
         WHERE moment_id = #{momentId}) mi
         WHERE mi.visibility = 4
         AND cf.current_id = mi.moment_user_id
-        AND NOT FIND_IN_SET(cf.user_id, mi.visuser)
-        ) AS user_ids
+        AND NOT JSON_CONTAINS(mi.visuser, CONCAT('"', cf.user_id, '"'), '$')
+        ) AS user_ids  <!-- 确保此处有闭合的括号和别名 -->
     </select>
 
     <!-- 根据user_id查询用户头像和昵称 -->

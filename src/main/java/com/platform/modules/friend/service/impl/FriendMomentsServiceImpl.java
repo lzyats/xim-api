@@ -179,6 +179,7 @@ public class FriendMomentsServiceImpl extends BaseServiceImpl<FriendMoments> imp
 
     @Override
     public void admomnet(MomentVo02 momentVo02){
+        //log.info("接收信息：{}",momentVo02);
         //添加朋友圈信息
         FriendMoments friendMoments=new FriendMoments()
                 .setUserId(momentVo02.getUserId())
@@ -244,18 +245,19 @@ public class FriendMomentsServiceImpl extends BaseServiceImpl<FriendMoments> imp
     public void getmoments(Long momentId,List<MediasVo02> mediasVo02){
         Long current = ShiroUtils.getUserId();
         MomentVo03 momentVo03 = friendMomentsDao.getMomentsByMomentId(momentId);
+        //log.info("最后的查询结果：{}",momentVo03);
         // 查询出符合条件的接收人ID
         List<Long> userlist = new ArrayList<Long>();
         if(momentVo03.getVisibility() ==3){
-            String visuser=momentVo03.getVisuser();
+            List<String> visuser=momentVo03.getVisuser();
+            //log.info(visuser.toString());
             // 处理空值或空字符串
-            if (visuser == null || visuser.trim().isEmpty()) {
-
+            if (visuser == null || visuser.isEmpty()) {
+                //log.info("visuser is null");
             }else{
-                // 按逗号分割字符串
-                String[] userIdStrs = visuser.split(",");
                 // 转换为Long类型并收集（处理可能的格式异常）
-                for (String userIdStr : userIdStrs) {
+                for (String userIdStr : visuser) {
+                    //log.info(userIdStr);
                     // 去除前后空格（避免字符串中包含空格导致转换失败）
                     String trimmed = userIdStr.trim();
                     if (!trimmed.isEmpty()) {

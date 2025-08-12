@@ -2,6 +2,8 @@ package com.platform.modules.friend.domain;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import java.util.Date;
+import java.util.List;
+
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.platform.common.web.domain.BaseEntity;
@@ -10,6 +12,15 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+
+// 导入 @TableField 注解（MyBatis-Plus 提供）
+import com.baomidou.mybatisplus.annotation.TableField;
+
+// 导入 JacksonTypeHandler 类型处理器（MyBatis-Plus 扩展提供）
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
+
+// 如果需要处理 List 等集合类型，还需要导入 Java 集合类
+import java.util.List;
 
 /**
  * <p>
@@ -59,7 +70,8 @@ public class FriendMoments extends BaseEntity {
      */
     private Integer isDeleted;
     // 可见人群
-    private String visuser;
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private List<String> visuser;
 
     public FriendMoments(Long momentId) {
         this.momentId = momentId;

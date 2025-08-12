@@ -8,6 +8,14 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.util.List;
+// 导入 @TableField 注解（MyBatis-Plus 提供）
+import com.baomidou.mybatisplus.annotation.TableField;
+
+// 导入 JacksonTypeHandler 类型处理器（MyBatis-Plus 扩展提供）
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
+
+// 如果需要处理 List 等集合类型，还需要导入 Java 集合类
+import java.util.List;
 
 
 @Data
@@ -34,7 +42,7 @@ public class MomentVo02 {
     private Integer visibility;
 
     /** 接收人列表 */
-    private String visuser;
+    private List<String> visuser;
 
     /** 图片列表，改为可选类型 */
     private List<MediasVo02> images;
