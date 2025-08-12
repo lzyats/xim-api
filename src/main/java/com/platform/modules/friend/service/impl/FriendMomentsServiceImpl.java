@@ -213,14 +213,16 @@ public class FriendMomentsServiceImpl extends BaseServiceImpl<FriendMoments> imp
     @Override
     public List<JSONObject> pullMsg() {
         Long current = ShiroUtils.getUserId();
-        log.info(current.toString());
         String lastId = ShiroUtils.getLastMomentId();
         log.info(lastId);
         String token = ShiroUtils.getToken();
-
+        // 获取lastId
+        if(lastId==null || lastId.isEmpty()){
+            ShiroUserVo shiroUser = tokenService.convert(token);
+            lastId=shiroUser.getLastMomentId();
+        }
         // 拉取消息
         List<JSONObject> dataList = pushService.pullMomentMsg(current, lastId, AppConstants.MESSAGE_LIMIT);
-        //logger.info("返回集合：{}",dataList);
         // 集合判空
         if (CollectionUtils.isEmpty(dataList)) {
             return dataList;
@@ -228,7 +230,7 @@ public class FriendMomentsServiceImpl extends BaseServiceImpl<FriendMoments> imp
         // 刷新msgId
         JSONObject data = dataList.get(dataList.size() - 1);
         String msgId = data.getJSONObject("pushData").getStr("msgId");
-        log.info("setLastMomentId：{}",msgId);
+        //log.info("setLastMomentId：{}",msgId);
         ShiroUserVo userVo = new ShiroUserVo().setLastMomentId(msgId);
         tokenService.refresh(Arrays.asList(token), userVo);
         return dataList;

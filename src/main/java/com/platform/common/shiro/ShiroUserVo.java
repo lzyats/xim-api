@@ -138,7 +138,7 @@ public class ShiroUserVo {
                 .setPhone(map.get("phone").toString())
                 .setBanned(EnumUtils.toEnum(YesOrNoEnum.class, map.get("banned").toString()))
                 .setLastId(map.get("lastId") == null ? "0" : map.get("lastId").toString())
-                .setLastId(map.get("lastMomentId") == null ? "0" : map.get("lastMomentId").toString())
+                .setLastMomentId(map.get("lastMomentId") == null ? "0" : map.get("lastMomentId").toString())
                 ;
     }
 
