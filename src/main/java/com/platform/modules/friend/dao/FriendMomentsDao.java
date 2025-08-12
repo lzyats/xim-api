@@ -37,7 +37,7 @@ public interface FriendMomentsDao extends BaseDao<FriendMoments> {
     /**
      * 获取朋友圈动态并关联用户昵称和头像
      */
-    List<Map<String, Object>> getMomentsById(Long userId);
+    List<Map<String, Object>> getMomentsById(Long userId, Long userIdSelf);
 
     Map<String, Object> getUserPortraitAndNickname(Long userId);
 

@@ -132,8 +132,9 @@ public class FriendMomentsServiceImpl extends BaseServiceImpl<FriendMoments> imp
     @Transactional
     @Override
     public PageInfo<MomentVo01> getlistbyid(Long userId) {
+        Long current = ShiroUtils.getUserId();
         // 1. 执行DAO查询（此时若已通过PageHelper.startPage开启分页，返回的是Page类型，含分页元数据）
-        List<Map<String, Object>> allMoments = friendMomentsDao.getMomentsById(userId);
+        List<Map<String, Object>> allMoments = friendMomentsDao.getMomentsById(userId,current);
         //logger.info("原始数据: {}",allMoments);
         // 强转为Page，获取分页信息（总条数、页码等）
         Page<Map<String, Object>> momentsPage = (Page<Map<String, Object>>) allMoments;

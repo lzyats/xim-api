@@ -116,13 +116,50 @@
     </select>
 
     <!-- 新增查询：根据userId查询存在媒体的朋友圈动态 -->
+    <!-- 升级查询：根据userId和userIdSelf查询存在媒体的朋友圈动态 -->
     <select id="getMomentsById" resultType="java.util.Map">
         <include refid="baseSql"/>
         INNER JOIN (SELECT DISTINCT moment_id FROM friend_medias) fm2
         ON fm.moment_id = fm2.moment_id
         <where>
+            <!-- 基础条件：必须匹配目标用户ID -->
             fm.user_id = #{userId}
-            AND fm.visibility != 2
+
+            <!-- 情况1：查询自己的动态（userId等于userIdSelf），无需额外条件 -->
+            <if test="userId == userIdSelf">
+                <!-- 自己的动态全部返回 -->
+            </if>
+
+            <!-- 情况2：查询他人的动态（userId不等于userIdSelf），按visibility字段判断 -->
+            <if test="userId != userIdSelf">
+                <!-- 关键修复：添加AND连接基础条件和后续条件块 -->
+                AND (
+                -- 2.1：visibility=0（公开）
+                fm.visibility = 0
+                OR
+                -- 2.2：visibility=1（好友可见），需判断好友关系
+                (
+                fm.visibility = 1
+                AND EXISTS (
+                SELECT 1 FROM chat_friend
+                WHERE chat_friend.user_id = fm.user_id
+                AND chat_friend.current_id = #{userIdSelf}
+                )
+                )
+                OR
+                -- 2.3：visibility=3（部分可见），检查JSON包含
+                (
+                fm.visibility = 3
+                AND JSON_CONTAINS(fm.visuser, CONCAT('"', #{userIdSelf}, '"'), '$')
+                )
+                OR
+                -- 2.4：visibility=4（不给谁看），检查JSON不包含
+                (
+                fm.visibility = 4
+                AND NOT JSON_CONTAINS(fm.visuser, CONCAT('"', #{userIdSelf}, '"'), '$')
+                )
+                )
+            </if>
         </where>
         ORDER BY fm.create_time DESC
     </select>
