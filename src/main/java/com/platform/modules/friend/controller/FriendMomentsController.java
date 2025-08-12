@@ -3,6 +3,7 @@ package com.platform.modules.friend.controller;
 import javax.annotation.Resource;
 
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONObject;
 import com.platform.common.aspectj.AppLog;
 import com.platform.common.aspectj.VersionRepeat;
 import com.platform.common.enums.LogTypeEnum;
@@ -12,6 +13,8 @@ import com.platform.common.web.domain.AjaxResult;
 import com.platform.common.web.version.VersionEnum;
 import com.platform.modules.chat.service.impl.ChatVersionServiceImpl;
 import com.platform.modules.friend.domain.FriendComments;
+import com.platform.modules.friend.service.impl.FriendCommentsServiceImpl;
+import com.platform.modules.friend.service.impl.FriendMomentsServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -130,6 +133,8 @@ public class FriendMomentsController extends BaseController {
         friendLikesService.add(friendLikes);
         // 写缓存
         redisUtils.set(redisKey,"1",expired, TimeUnit.SECONDS);
+        // 发送通知
+        friendMomentsService.getmoments(friendLikes.getMomentId(),null);
         return AjaxResult.successMsg("新增成功");
     }
 
@@ -148,6 +153,8 @@ public class FriendMomentsController extends BaseController {
             return AjaxResult.fail("同一信息每天最多评论3条");
         }
         friendCommentsService.add(friendComments);
+        // 发送通知
+        friendMomentsService.getmoments(friendComments.getMomentId(),null);
         return AjaxResult.successMsg("新增成功");
     }
 
@@ -160,6 +167,16 @@ public class FriendMomentsController extends BaseController {
     public AjaxResult admomnet(@Validated @RequestBody MomentVo02 momentVo02) {
         friendMomentsService.admomnet(momentVo02);
         return AjaxResult.successMsg("新增成功");
+    }
+
+    /**
+     * 拉取消息
+     */
+    @VersionRepeat(VersionEnum.V1_0_0)
+    @GetMapping("/pullMsg")
+    public AjaxResult pullMsg() {
+        List<JSONObject> dataList = friendMomentsService.pullMsg();
+        return AjaxResult.success(dataList);
     }
 
 }

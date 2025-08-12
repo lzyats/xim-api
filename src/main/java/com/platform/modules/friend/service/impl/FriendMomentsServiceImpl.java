@@ -3,7 +3,14 @@ package com.platform.modules.friend.service.impl;
 import javax.annotation.Resource;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
+import com.platform.common.constant.AppConstants;
+import com.platform.common.shiro.ShiroUserVo;
+import com.platform.common.shiro.ShiroUtils;
+import com.platform.modules.auth.service.TokenService;
+import com.platform.modules.chat.enums.ChatTalkEnum;
 import com.platform.modules.chat.service.impl.ChatVersionServiceImpl;
 import com.platform.modules.friend.dao.FriendMomentsDao;
 import com.platform.modules.friend.domain.FriendMedias;
@@ -11,29 +18,38 @@ import com.platform.modules.friend.domain.FriendMoments;
 import com.platform.modules.friend.service.FriendMediasService;
 import com.platform.modules.friend.service.FriendMomentsService;
 import com.platform.modules.friend.vo.*;
+import com.platform.modules.push.dto.PushComments;
+import com.platform.modules.push.dto.PushFrom;
+import com.platform.modules.push.dto.PushMedias;
+import com.platform.modules.push.dto.PushMoment;
+import com.platform.modules.push.enums.PushBadgerEnum;
+import com.platform.modules.push.enums.PushMomentEnum;
+import com.platform.modules.push.service.PushService;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+
+import java.util.*;
+
 import com.platform.common.web.service.impl.BaseServiceImpl;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.ZoneId;
-import java.util.Date;
 import java.sql.Timestamp;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
+import org.springframework.util.CollectionUtils;
 
 /**
  * <p>
  * 朋友圈动态表 服务层实现
  * </p>
  */
+@Slf4j
 @Service("friendMomentsService")
 public class FriendMomentsServiceImpl extends BaseServiceImpl<FriendMoments> implements FriendMomentsService {
 
@@ -46,13 +62,18 @@ public class FriendMomentsServiceImpl extends BaseServiceImpl<FriendMoments> imp
     @Resource
     private FriendMediasService friendMediasService;
 
+    @Resource
+    private PushService pushService;
+
+    @Resource
+    private TokenService tokenService;
+
     @Autowired
     public void setBaseDao() {
         super.setBaseDao(friendMomentsDao);
     }
 
-    // 初始化日志对象（注意：这里应使用当前类的字节码对象）
-    private static final Logger logger = LoggerFactory.getLogger(ChatVersionServiceImpl.class);
+
 
     @Override
     public List<FriendMoments> queryList(FriendMoments t) {
@@ -164,6 +185,7 @@ public class FriendMomentsServiceImpl extends BaseServiceImpl<FriendMoments> imp
                 .setContent(momentVo02.getContent())
                 .setLocation(momentVo02.getLocation())
                 .setVisibility(momentVo02.getVisibility())
+                .setVisuser(momentVo02.getVisuser())
                 .setCreateTime(DateUtil.date()
                 );
         friendMomentsService.add(friendMoments);
@@ -182,5 +204,141 @@ public class FriendMomentsServiceImpl extends BaseServiceImpl<FriendMoments> imp
         }
         //批量添加数据
         friendMediasService.batchAdd(friendMedias,mediasV2.size());
+        this.getmoments(momentId,mediasV2);
     };
+
+    /**
+     * 拉取消息
+     */
+    @Override
+    public List<JSONObject> pullMsg() {
+        Long current = ShiroUtils.getUserId();
+        log.info(current.toString());
+        String lastId = ShiroUtils.getLastMomentId();
+        log.info(lastId);
+        String token = ShiroUtils.getToken();
+
+        // 拉取消息
+        List<JSONObject> dataList = pushService.pullMomentMsg(current, lastId, AppConstants.MESSAGE_LIMIT);
+        //logger.info("返回集合：{}",dataList);
+        // 集合判空
+        if (CollectionUtils.isEmpty(dataList)) {
+            return dataList;
+        }
+        // 刷新msgId
+        JSONObject data = dataList.get(dataList.size() - 1);
+        String msgId = data.getJSONObject("pushData").getStr("msgId");
+        log.info("setLastMomentId：{}",msgId);
+        ShiroUserVo userVo = new ShiroUserVo().setLastMomentId(msgId);
+        tokenService.refresh(Arrays.asList(token), userVo);
+        return dataList;
+    }
+
+    /**
+     * 查询朋友圈信息并向所有人发送
+     * @param momentId
+     * @param mediasVo02
+     */
+    public void getmoments(Long momentId,List<MediasVo02> mediasVo02){
+        Long current = ShiroUtils.getUserId();
+        MomentVo03 momentVo03 = friendMomentsDao.getMomentsByMomentId(momentId);
+        // 查询出符合条件的接收人ID
+        List<Long> userlist = new ArrayList<Long>();
+        if(momentVo03.getVisibility() ==3){
+            String visuser=momentVo03.getVisuser();
+            // 处理空值或空字符串
+            if (visuser == null || visuser.trim().isEmpty()) {
+
+            }else{
+                // 按逗号分割字符串
+                String[] userIdStrs = visuser.split(",");
+                // 转换为Long类型并收集（处理可能的格式异常）
+                for (String userIdStr : userIdStrs) {
+                    // 去除前后空格（避免字符串中包含空格导致转换失败）
+                    String trimmed = userIdStr.trim();
+                    if (!trimmed.isEmpty()) {
+                        userlist.add(Long.parseLong(trimmed));
+                    }
+                }
+            }
+
+        }else{
+            userlist=friendMomentsDao.getQualifiedUserIdsByMomentId(momentId);
+        }
+        //接收人列表中应该加上自己
+        if(!userlist.contains(momentVo03.getUserId()))
+            userlist.add(momentVo03.getUserId());
+        if(!userlist.contains(current))
+            userlist.add(current);
+        //查询其他信息
+        List<PushMedias> pushMediasList=new ArrayList<>();
+        if(mediasVo02==null){
+            List<MediasVo01> mediasVo01s=friendMomentsDao.getMediasByMomentId(momentId);
+            for (int i = 0; i < mediasVo01s.size(); i++) {
+                PushMedias pushMedias=new PushMedias();
+                pushMedias.setType(mediasVo01s.get(i).getType());
+                pushMedias.setUrl(mediasVo01s.get(i).getUrl());
+                pushMedias.setThumbnail(mediasVo01s.get(i).getThumbnail());
+                pushMediasList.add(pushMedias);
+            }
+        }else{
+            for (int i = 0; i < mediasVo02.size(); i++) {
+                mediasVo02.get(i).setMomentId(momentId);
+                PushMedias pushMedias=new PushMedias();
+                pushMedias.setType(mediasVo02.get(i).getType());
+                pushMedias.setUrl(mediasVo02.get(i).getUrl());
+                pushMedias.setThumbnail(mediasVo02.get(i).getThumbnail());
+                pushMediasList.add(pushMedias);
+            }
+        }
+        List<PushComments> pushCommentsList=new ArrayList<>();
+        List<CommentsVo01> commentsVo01s= friendMomentsDao.getCommentsByMomentId(momentId);
+        for (int i = 0; i < commentsVo01s.size(); i++) {
+            PushComments pushComments=new PushComments();
+            pushComments.setContent(commentsVo01s.get(i).getContent());
+            pushComments.setFromUser(commentsVo01s.get(i).getFromUser());
+            pushComments.setToUser(commentsVo01s.get(i).getToUser());
+            boolean Source=false;
+            if(Objects.equals(commentsVo01s.get(i).getFromUser(), momentVo03.getNickname())){
+                Source=true;
+            }
+            pushComments.setSource(Source);
+            pushCommentsList.add(pushComments);
+        }
+        List<String> likes= friendMomentsDao.getLikesNicknamesByMomentId(momentId);
+        //组装消息
+        Long MsgId= IdWorker.getId();
+        Long SyncId= IdWorker.getId();
+        PushMoment pushMoment=new PushMoment()
+                .setMsgId(MsgId.toString())
+                .setMomentId(momentId)
+                .setUserId(momentVo03.getUserId())
+                .setPortrait(momentVo03.getPortrait())
+                .setNickname(momentVo03.getNickname())
+                .setContent(momentVo03.getContent())
+                .setLocation(momentVo03.getLocation())
+                .setType(PushMomentEnum.MOMENT.getCode())
+                .setContent(momentVo03.getContent())
+                .setContent(momentVo03.getContent())
+                .setCreateTime(DateUtil.date())
+                .setImages(pushMediasList)
+                .setComments(pushCommentsList)
+                .setLikes(likes)
+                ;
+        log.info("接收人列表："+userlist);
+        PushFrom pushFrom = new PushFrom()
+                .setMsgId(MsgId)
+                .setSyncId(MsgId)
+                .setUserId(momentVo03.getUserId())
+                .setNickname(momentVo03.getNickname())
+                .setPortrait(momentVo03.getPortrait())
+                .setSign(ShiroUtils.getSign());
+        //pushService.pushMoment(pushFrom,pushMoment,userlist);
+        pushMoment.setSyncId(MsgId.toString());
+        // 同步消息
+        pushService.pushMomentSync(pushFrom, pushMoment,userlist,PushMomentEnum.MOMENT);
+        //发送朋友圈计数器
+        //wpushService.pushBadger(userlist, PushBadgerEnum.MOMENT,true);
+    }
+
 }

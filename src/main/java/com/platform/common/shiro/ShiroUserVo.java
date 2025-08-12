@@ -70,6 +70,10 @@ public class ShiroUserVo {
      * 消息id
      */
     private String lastId;
+    /**
+     * 朋友圈id
+     */
+    private String lastMomentId;
 
     public ShiroUserVo(ChatUser chatUser) {
         JSONObject jsonObject = new JSONObject()
@@ -84,6 +88,7 @@ public class ShiroUserVo {
         this.userNo = chatUser.getUserNo();
         this.banned = chatUser.getBanned();
         this.lastId = "0";
+        this.lastMomentId = "0";
     }
 
     public Map<String, Object> toMap() {
@@ -97,6 +102,7 @@ public class ShiroUserVo {
                 .put("userNo", userNo)
                 .put("banned", banned.getCode())
                 .put("lastId", lastId)
+                .put("lastMomentId", lastMomentId)
                 .build();
     }
 
@@ -104,6 +110,7 @@ public class ShiroUserVo {
         String nickname = userVo.getNickname();
         String portrait = userVo.getPortrait();
         String lastId = userVo.getLastId();
+        String lastMomentId = userVo.getLastMomentId();
         Map<String, Object> objectMap = new HashMap<>();
         if (!StringUtils.isEmpty(nickname)) {
             objectMap.put("nickname", nickname);
@@ -113,6 +120,9 @@ public class ShiroUserVo {
         }
         if (!StringUtils.isEmpty(lastId)) {
             objectMap.put("lastId", lastId);
+        }
+        if (!StringUtils.isEmpty(lastMomentId)) {
+            objectMap.put("lastMomentId", lastMomentId);
         }
         return objectMap;
     }
@@ -128,6 +138,7 @@ public class ShiroUserVo {
                 .setPhone(map.get("phone").toString())
                 .setBanned(EnumUtils.toEnum(YesOrNoEnum.class, map.get("banned").toString()))
                 .setLastId(map.get("lastId") == null ? "0" : map.get("lastId").toString())
+                .setLastId(map.get("lastMomentId") == null ? "0" : map.get("lastMomentId").toString())
                 ;
     }
 

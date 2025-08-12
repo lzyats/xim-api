@@ -599,6 +599,7 @@ public class ChatMsgServiceImpl extends BaseServiceImpl<ChatMsg> implements Chat
     public List<JSONObject> pullMsg() {
         Long current = ShiroUtils.getUserId();
         String lastId = ShiroUtils.getLastId();
+        log.info(lastId);
         String token = ShiroUtils.getToken();
         // 下发红点
         this.pushBadger(current);
@@ -611,6 +612,7 @@ public class ChatMsgServiceImpl extends BaseServiceImpl<ChatMsg> implements Chat
         // 刷新msgId
         JSONObject data = dataList.get(dataList.size() - 1);
         String msgId = data.getJSONObject("pushData").getStr("msgId");
+        log.info("setLastMomentId：{}",msgId);
         ShiroUserVo userVo = new ShiroUserVo().setLastId(msgId);
         tokenService.refresh(Arrays.asList(token), userVo);
         return dataList;

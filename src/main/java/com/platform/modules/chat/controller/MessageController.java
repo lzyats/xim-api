@@ -167,6 +167,16 @@ public class MessageController extends BaseController {
     }
 
     /**
+     * 拉取朋友圈消息
+     */
+    @VersionRepeat(VersionEnum.V1_0_0)
+    @GetMapping("/pullMomentMsg")
+    public AjaxResult pullMomentMsg() {
+        List<JSONObject> dataList = chatMsgService.pullMsg();
+        return AjaxResult.success(dataList);
+    }
+
+    /**
      * 清空消息
      */
     @VersionRepeat(VersionEnum.V1_0_0)

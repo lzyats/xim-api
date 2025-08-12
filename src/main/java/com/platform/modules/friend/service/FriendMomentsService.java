@@ -1,5 +1,6 @@
 package com.platform.modules.friend.service;
 
+import cn.hutool.json.JSONObject;
 import com.github.pagehelper.PageInfo;
 import com.platform.modules.friend.domain.FriendMoments;
 import com.platform.common.web.service.BaseService;
@@ -30,5 +31,16 @@ public interface FriendMomentsService extends BaseService<FriendMoments> {
       * @return
       */
      void admomnet(MomentVo02 momentVo02);
+
+     /**
+      * 获取指定ID的朋友圈信息
+      */
+
+     void getmoments(Long momentId,List<MediasVo02> mediasVo02s);
+
+     /**
+      * 拉取消息
+      */
+     List<JSONObject> pullMsg();
 
 }

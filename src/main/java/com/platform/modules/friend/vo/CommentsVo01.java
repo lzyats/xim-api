@@ -9,7 +9,7 @@ import lombok.experimental.Accessors;
 public class CommentsVo01 {
 
     /** 是否发布者 */
-    private boolean  source;
+    private boolean source;
 
     /** 评论人 */
     private String fromUser;

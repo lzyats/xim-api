@@ -58,6 +58,8 @@ public class FriendMoments extends BaseEntity {
      * 逻辑删除标记
      */
     private Integer isDeleted;
+    // 可见人群
+    private String visuser;
 
     public FriendMoments(Long momentId) {
         this.momentId = momentId;

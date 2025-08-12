@@ -74,6 +74,10 @@ public class ShiroUtils {
         return getLoginUser().getLastId();
     }
 
+    public static String getLastMomentId() {
+        return getLoginUser().getLastMomentId();
+    }
+
     public static PushFrom getPushFrom(Long msgId, Long syncId) {
         ShiroUserVo loginUser = getLoginUser();
         return new PushFrom()

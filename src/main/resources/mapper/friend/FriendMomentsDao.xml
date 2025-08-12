@@ -4,10 +4,19 @@
 
     <!-- 字段集 -->
     <sql id="baseSql">
-        select fm.moment_id, fm.user_id, fm.content, fm.location, fm.visibility, fm.create_time, fm.update_time, fm.is_deleted,
-               cu.nickname, cu.portrait
+        select fm.moment_id,
+               fm.user_id,
+               fm.content,
+               fm.location,
+               fm.visibility,
+               fm.create_time,
+               fm.visuser,
+               fm.update_time,
+               fm.is_deleted,
+               cu.nickname,
+               cu.portrait
         from friend_moments fm
-        left join chat_user cu on fm.user_id = cu.user_id
+                 left join chat_user cu on fm.user_id = cu.user_id
     </sql>
 
     <!-- 查询列表字段 -->
@@ -48,51 +57,69 @@
     </select>
 
     <!-- 获取朋友圈动态并关联用户昵称和头像 -->
-    <!-- 查询结果为：1广场可见信息 2自己发布的朋友圈信息 3自己的好友朋友圈信息 -->
     <select id="getMomentsWithUserInfo" resultType="java.util.Map">
         <include refid="baseSql"/>
         <where>
-            (fm.visibility = 0 or (fm.user_id=#{userId})
-            or (fm.visibility = 1 and fm.user_id!=#{userId}
+            (
+            -- 原条件：广场可见（0）、自己发布的内容、好友发布的内容（visibility=1）
+            fm.visibility = 0
+            or fm.user_id = #{userId}
+            or (
+            fm.visibility = 1
+            and fm.user_id != #{userId}
             and fm.user_id in (
             select cf.current_id
             from chat_friend cf
             where cf.user_id = #{userId}
-            ))
+            )
+            )
+            -- 新增条件1：visibility=3 且 userId在visuser字段中（格式：userA,userB...）
+            or (
+            fm.visibility = 3
+            and concat(',', fm.visuser, ',') like concat('%,', #{userId}, ',%')
+            )
+            -- 新增条件2：visibility=4 且 userId不在visuser字段中
+            or (
+            fm.visibility = 4
+            and (
+            fm.visuser is null
+            or concat(',', fm.visuser, ',') not like concat('%,', #{userId}, ',%')
+            )
+            )
             )
         </where>
         ORDER BY fm.create_time DESC
     </select>
+
     <select id="getMediasByMomentId" resultType="com.platform.modules.friend.vo.MediasVo01">
         SELECT type, url, thumbnail
         FROM friend_medias
         WHERE moment_id = #{momentId}
     </select>
+
     <select id="getCommentsByMomentId" resultType="com.platform.modules.friend.vo.CommentsVo01">
-        SELECT
-            CASE WHEN fc.source = 1 THEN true ELSE false END AS source,
-            cu1.nickname AS from_user,
-            cu2.nickname AS to_user,
-            fc.content
-        FROM
-            friend_comments fc
-        LEFT JOIN chat_user cu1 ON fc.user_id = cu1.user_id
-        LEFT JOIN chat_user cu2 ON fc.reply_to = cu2.user_id
-        WHERE
-            fc.moment_id = #{momentId}
+        SELECT CASE WHEN fc.source = 1 THEN true ELSE false END AS source,
+               cu1.nickname                                     AS from_user,
+               cu2.nickname                                     AS to_user,
+               fc.content
+        FROM friend_comments fc
+                 LEFT JOIN chat_user cu1 ON fc.user_id = cu1.user_id
+                 LEFT JOIN chat_user cu2 ON fc.reply_to = cu2.user_id
+        WHERE fc.moment_id = #{momentId}
     </select>
+
     <select id="getLikesNicknamesByMomentId" resultType="java.lang.String">
         SELECT chat_user.nickname
         FROM friend_likes
-        JOIN chat_user ON chat_user.user_id = friend_likes.user_id
+                 JOIN chat_user ON chat_user.user_id = friend_likes.user_id
         WHERE friend_likes.moment_id = #{momentId}
     </select>
 
-    <!-- 新增查询：根据userId查询存在媒体的朋友圈动态（关联用户信息，且排除visibility=2的记录） -->
+    <!-- 新增查询：根据userId查询存在媒体的朋友圈动态 -->
     <select id="getMomentsById" resultType="java.util.Map">
         <include refid="baseSql"/>
         INNER JOIN (SELECT DISTINCT moment_id FROM friend_medias) fm2
-        ON fm.moment_id = fm2.moment_id  <!-- 子查询去重媒体记录，避免重复关联 -->
+        ON fm.moment_id = fm2.moment_id
         <where>
             fm.user_id = #{userId}
             AND fm.visibility != 2
@@ -100,4 +127,67 @@
         ORDER BY fm.create_time DESC
     </select>
 
+    <!-- 新增查询：根据momentId查询朋友圈动态 -->
+    <select id="getMomentsByMomentId" resultType="com.platform.modules.friend.vo.MomentVo03">
+        <include refid="baseSql"/>
+        <where>
+            moment_id = #{momentId}
+        </where>
+    </select>
+
+    <!-- 根据moment_id查询符合条件的user_id列表（兼容MySQL 5.7） -->
+    <select id="getQualifiedUserIdsByMomentId" resultType="java.lang.Long">
+        SELECT user_id FROM (
+        <!-- 情况1：visibility为0时，返回所有用户ID -->
+        SELECT cu.user_id
+        FROM chat_user cu,
+        (SELECT visibility, user_id AS moment_user_id, visuser
+        FROM friend_moments
+        WHERE moment_id = #{momentId}) mi
+        WHERE mi.visibility = 0
+
+        UNION
+
+        <!-- 情况2：visibility为1时，返回当前用户的所有好友ID -->
+        SELECT cf.user_id
+        FROM chat_friend cf,
+        (SELECT visibility, user_id AS moment_user_id, visuser
+        FROM friend_moments
+        WHERE moment_id = #{momentId}) mi
+        WHERE mi.visibility = 1
+        AND cf.current_id = mi.moment_user_id
+
+        UNION
+
+        <!-- 情况3：visibility为2时，仅返回发布者自己的ID -->
+        SELECT mi.moment_user_id
+        FROM (SELECT visibility, user_id AS moment_user_id, visuser
+        FROM friend_moments
+        WHERE moment_id = #{momentId}) mi
+        WHERE mi.visibility = 2
+
+        UNION
+
+        <!-- 情况5：visibility为4时，返回当前用户的好友中不在visuser中的ID -->
+        SELECT cf.user_id
+        FROM chat_friend cf,
+        (SELECT visibility, user_id AS moment_user_id, visuser
+        FROM friend_moments
+        WHERE moment_id = #{momentId}) mi
+        WHERE mi.visibility = 4
+        AND cf.current_id = mi.moment_user_id
+        AND NOT FIND_IN_SET(cf.user_id, mi.visuser)
+        ) AS user_ids
+    </select>
+
+    <!-- 根据user_id查询用户头像和昵称 -->
+    <select id="getUserPortraitAndNickname" resultType="java.util.Map">
+        SELECT
+            portrait,
+            nickname
+        FROM
+            chat_user
+        WHERE
+            user_id = #{userId}
+    </select>
 </mapper>

@@ -39,6 +39,18 @@ public interface FriendMomentsDao extends BaseDao<FriendMoments> {
      */
     List<Map<String, Object>> getMomentsById(Long userId);
 
+    Map<String, Object> getUserPortraitAndNickname(Long userId);
+
+    /**
+     * 查询单条朋友圈信息getMomentsByMomentId
+     */
+    MomentVo03 getMomentsByMomentId(Long momentId);
+
+    /**
+     * 获取朋友圈动态发送人列表
+     */
+    List<Long> getQualifiedUserIdsByMomentId(Long momentId);
+
     /**
      * 根据 moment_id 查询 friend_medias 表
      * @param momentId 朋友圈动态 ID

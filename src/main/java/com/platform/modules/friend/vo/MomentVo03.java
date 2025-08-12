@@ -1,42 +1,52 @@
 package com.platform.modules.friend.vo;
 
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
+import java.util.Date;
 import java.util.List;
 
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL) // 确保 null 值字段不被序列化
 @Accessors(chain = true) // 链式调用
-public class MomentVo02 {
+public class MomentVo03 {
+
+    /** 动态ID，改为可选类型 */
+    private Long momentId;
 
     /** 用户ID，改为可选类型 */
-    @NotNull(message = "userId不能为空")
     private Long userId;
 
-    /** 动态正文，改为可选类型 */
-    @NotBlank(message = "朋友圈内容不能为空")
-    @Size(max = 500, message = "朋友圈内容长度不能大于500")
-    private String content;
+    /** 用户头像，改为可选类型 */
+    private String portrait;
 
+    /** 用户昵称，改为可选类型 */
+    private String nickname;
+
+    /** 动态正文，改为可选类型 */
+    private String content;
 
     /** 位置信息，字符类型，可为空 */
     private String location;
 
     /** 发布时间，改为可选类型 */
-    private String createTime;
+    private Date createTime;
 
-    private Integer visibility;
+    /** 可见人群 */
+    private int visibility;
 
-    /** 接收人列表 */
+    /** 可见人列表 */
     private String visuser;
 
     /** 图片列表，改为可选类型 */
-    private List<MediasVo02> images;
+    private List<MediasVo01> images;
 
+    /** 评论内容，改为可选类型 */
+    private List<CommentsVo01> comments;
+
+    /** 点赞列表，改为可选类型 */
+    private List<String> likes;
 }
