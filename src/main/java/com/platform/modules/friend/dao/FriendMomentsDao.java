@@ -67,4 +67,12 @@ public interface FriendMomentsDao extends BaseDao<FriendMoments> {
      */
     List<String> getLikesNicknamesByMomentId(Long momentId);
 
+    /**
+     * 根据朋友圈ID和用户ID删除记录
+     * @param momentId 朋友圈ID
+     * @param userId 用户ID
+     * @return 删除的记录数
+     */
+    int deleteByMomentIdAndUserId(@Param("momentId") Long momentId, @Param("userId") Long userId);
+
 }

@@ -102,8 +102,9 @@ public class CommonServiceImpl implements CommonService {
 
         // 2. 缓存不存在或异常，查询数据库并构建结果
         Map<ChatConfigEnum, ChatConfig> dataMap = chatConfigService.queryConfig();
+        //logger.info("从数据库获取配置成功，Value: {}", dataMap);
         CommonVo06 result = buildConfigResult(dataMap);
-
+        //logger.info("从数据库获取配置成功，Value: {}", result);
         // 3. 将结果存入Redis缓存（设置过期时间，如5分钟）
         try {
             redisJsonUtil.set(redisKey, result, 600L, TimeUnit.SECONDS); // 300秒=5分钟，可按业务调整

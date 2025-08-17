@@ -79,9 +79,17 @@ public enum ChatConfigEnum {
      */
     SYS_BEIAN("sys_beian"),
     /**
-     * 备案信息
+     * 邀请注册
      */
     SYS_INVO("sys_invo"),
+    /**
+     * 邀请注册是否自动加好友
+     */
+    SYS_INVOADUS("sys_invoadus"),
+    /**
+     * 注册后是补发朋友圈
+     */
+    SYS_SENDMOMENT("sys_sendmoment"),
     /**
      * 备案信息
      */

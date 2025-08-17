@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.platform.modules.friend.dao.FriendMomentsDao">
-
     <!-- 字段集 -->
     <sql id="baseSql">
         select fm.moment_id,
@@ -254,4 +253,14 @@
         WHERE
             user_id = #{userId}
     </select>
+    <!-- 根据momentid和userid删除指定信息 -->
+    <!-- 将删除操作改为更新is_deleted字段为1（逻辑删除） -->
+    <update id="deleteByMomentIdAndUserId">
+        UPDATE friend_moments
+        SET is_deleted = 1,
+        update_time = NOW()  <!-- 可选：更新操作时间，需表中有update_time字段 -->
+        WHERE moment_id = #{momentId}
+        AND user_id = #{userId}
+        <!-- 确保只更新未被删除的记录 -->
+    </update>
 </mapper>

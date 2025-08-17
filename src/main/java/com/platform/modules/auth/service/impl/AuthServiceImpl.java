@@ -15,9 +15,11 @@ package com.platform.modules.auth.service.impl;
 
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.platform.common.config.PlatformConfig;
 import com.platform.common.constant.AppConstants;
 import com.platform.common.enums.ApproveEnum;
@@ -37,13 +39,19 @@ import com.platform.modules.auth.vo.AuthVo00;
 import com.platform.modules.auth.vo.AuthVo03;
 import com.platform.modules.auth.vo.AuthVo05;
 import com.platform.modules.auth.vo.AuthVo06;
+import com.platform.modules.chat.domain.ChatFriend;
+import com.platform.modules.chat.domain.ChatFriendApply;
 import com.platform.modules.chat.domain.ChatUser;
 import com.platform.modules.chat.enums.ChatConfigEnum;
+import com.platform.modules.chat.enums.FriendSourceEnum;
 import com.platform.modules.chat.enums.UserLogEnum;
 import com.platform.modules.chat.service.*;
 import com.platform.modules.chat.service.impl.ChatNoticeServiceImpl;
 import com.platform.modules.common.service.HookService;
 import com.platform.modules.common.vo.CommonVo06;
+import com.platform.modules.friend.domain.FriendMoments;
+import com.platform.modules.friend.service.FriendMomentsService;
+import com.platform.modules.friend.vo.MomentVo01;
 import com.platform.modules.push.dto.PushBox;
 import com.platform.modules.push.dto.PushFrom;
 import com.platform.modules.push.enums.PushAuditEnum;
@@ -63,12 +71,18 @@ import org.springframework.util.StringUtils;
 import com.platform.modules.common.service.CommonService;
 
 import javax.annotation.Resource;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import com.platform.modules.auth.util.WuxiaNameGenerator;
 
 import com.platform.modules.chat.domain.ChatUserInv;
+import org.springframework.web.bind.annotation.GetMapping;
+
 /**
  * 鉴权 服务层
  */
@@ -123,6 +137,12 @@ public class AuthServiceImpl implements AuthService {
 
     @Resource
     private ChatUserInvService chatUserInvService;
+
+    @Resource
+    private ChatFriendService chatFriendService;
+
+    @Resource
+    private FriendMomentsService friendMomentsService;
 
     @Autowired
     private RedisUtils redisUtils;
@@ -282,8 +302,11 @@ public class AuthServiceImpl implements AuthService {
         if (shiroUser == null) {
             shiroUser = new ShiroUserVo(chatUser);
         }
+        // 开始登录
+        log.info("开始登录");
         // 生成新token
         tokenService.generate(shiroUser);
+        log.info("token:｛｝",shiroUser.getToken());
         // 移除次数
         redisUtils.delete(makeLoginKey(shiroUser.getPhone()));
         // 重置token
@@ -296,7 +319,7 @@ public class AuthServiceImpl implements AuthService {
     /**
      * 注册接口
      */
-    private ShiroUserVo doRegister(String phone, String nickname,String email,String pass,String safestr,String incodes) {
+    private ShiroUserVo doRegister (String phone, String nickname,String email,String pass,String safestr,String incodes) {
         String salt = CodeUtils.salt();
         String userNo = chatNumberService.queryNextNo();
         String portrait = chatPortraitService.queryUserPortrait();
@@ -318,10 +341,11 @@ public class AuthServiceImpl implements AuthService {
                 .setCreateTime(DateUtil.date());
                 ;
         // 执行邀请
+        ChatUser chatUsert=new ChatUser();
         if(incodes!=null || !incode.isEmpty()){
             //查询邀请码推荐人信息
-            ChatUser chatUsert=chatUserService.queryByIncode(incodes);
-            //logger.info("获取推荐人信息，data: {}", chatUsert);
+            chatUsert=chatUserService.queryByIncode(incodes);
+            logger.info("获取推荐人信息，data: {}", chatUsert);
             // 查询结果不为空则处理
             if(chatUsert!=null){
                 // 当前用户的user_dep
@@ -340,7 +364,7 @@ public class AuthServiceImpl implements AuthService {
                 doinv=true;
             }
         }
-
+        log.info("<添加新用户>");
         // 增加用户
         ChatUser chatUser = new ChatUser()
                 .setPhone(phone)
@@ -383,12 +407,74 @@ public class AuthServiceImpl implements AuthService {
         ShiroUserVo loginUser = new ShiroUserVo(chatUser);
         tokenService.generate(loginUser);
         // 插入邀请数据
-        if(doinv==true){
+        if(doinv){
+            log.info("<获取系统推荐奖励>");
             //获取系统推荐奖励
-            CommonVo06 vo06= commonService.getConfig();
+            //CommonVo06 vo06= commonService.getConfig();
+            double getInvo=chatConfigService.queryConfig(ChatConfigEnum.SYS_INVO).getBigDecimal().doubleValue();
             chatUserInv.setUserId(loginUser.getUserId());
-            chatUserInv.setInvUsdt(vo06.getInvo());
+            chatUserInv.setInvUsdt(getInvo);
             chatUserInvService.invode(chatUserInv);
+            //执行自动加好友
+            String adduser = chatConfigService.queryConfig(ChatConfigEnum.SYS_INVOADUS).getYesOrNo().getCode();
+            log.info("<是否自动加好友>{}",adduser);
+            if(adduser==null || adduser.isEmpty()){
+
+            }else{
+                if(adduser.equals("Y")){
+                    Long current = chatUser.getUserId();
+                    Long userId = chatUsert.getUserId();
+                    Long groupId= IdWorker.getId();
+                    String remark="系统添加";
+                    FriendSourceEnum source=FriendSourceEnum.SELF;
+                    ChatFriend friend1 = new ChatFriend()
+                            .setCurrentId(current)
+                            .setGroupId(groupId)
+                            .setUserId(userId)
+                            .setNickname(chatUsert.getNickname())
+                            .setPortrait(chatUsert.getPortrait())
+                            .setUserNo(chatUsert.getUserNo())
+                            //.setRemark(remark)
+                            .setSource(source)
+                            .setBlack(YesOrNoEnum.NO)
+                            .setDisturb(YesOrNoEnum.NO)
+                            .setTop(YesOrNoEnum.NO)
+                            .setCreateTime(DateUtil.date());
+                    chatFriendService.add(friend1);
+                    ChatFriend friend2 = new ChatFriend()
+                            .setCurrentId(userId)
+                            .setGroupId(groupId)
+                            .setUserId(current)
+                            .setNickname(chatUser.getNickname())
+                            .setPortrait(chatUser.getPortrait())
+                            //.setRemark(remark)
+                            .setUserNo(chatUser.getUserNo())
+                            .setSource(source)
+                            .setBlack(YesOrNoEnum.NO)
+                            .setDisturb(YesOrNoEnum.NO)
+                            .setTop(YesOrNoEnum.NO)
+                            .setCreateTime(DateUtil.date());
+                    chatFriendService.add(friend2);
+                    // 内容
+                    String content = AppConstants.TIPS_FRIEND_NEW;
+                    // 发送通知1
+                    pushService.pushSingle(friend1.getPushFrom(IdWorker.getId()), Arrays.asList(current), content, PushMsgTypeEnum.TIPS);
+                    // 发送通知2
+                    pushService.pushSingle(friend2.getPushFrom(IdWorker.getId()), Arrays.asList(userId), content, PushMsgTypeEnum.TIPS);
+                    // 通知推送
+                    chatFriendService.pushSetting(current, userId, ChatFriend.LABEL_CREATE, "");
+                    // 通知推送
+                    chatFriendService.pushSetting(userId, current, ChatFriend.LABEL_CREATE, "");
+                }
+            }
+        }
+        //补发所有朋友圈信息
+        String sendmoment = chatConfigService.queryConfig(ChatConfigEnum.SYS_SENDMOMENT).getYesOrNo().getCode();
+        if(sendmoment.equals("Y")){
+           //异步执行
+            ThreadUtil.execAsync(() -> {
+                friendMomentsService.pushlistdata(chatUser,loginUser);
+            });
         }
         // 新增token
         chatUserTokenService.resetToken(loginUser.getUserId(), loginUser.getToken(), YesOrNoEnum.NO);

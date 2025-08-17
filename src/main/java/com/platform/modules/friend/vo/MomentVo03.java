@@ -40,6 +40,8 @@ public class MomentVo03 {
     /** 可见人群 */
     private int visibility;
 
+    private int isdelete;
+
     /** 可见人列表 */
     @TableField(typeHandler = JacksonTypeHandler.class)
     private List<String> visuser;

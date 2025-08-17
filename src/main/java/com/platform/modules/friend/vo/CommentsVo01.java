@@ -20,4 +20,7 @@ public class CommentsVo01 {
     /** 评论内容 */
     private String content;
 
+    public boolean getSource() {
+        return source;
+    }
 }

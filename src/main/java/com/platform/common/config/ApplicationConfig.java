@@ -33,7 +33,10 @@ import java.util.TimeZone;
 // 指定要扫描的Mapper类的包的路径
 @MapperScan({"com.platform.modules.**.dao"})
 // 扫描spring工具类
-@ComponentScan(basePackages = {"cn.hutool.extra.spring"})
+@ComponentScan(basePackages = {
+        "cn.hutool.extra.spring",
+        "com.platform.modules.quartz.service",
+})
 public class ApplicationConfig {
 
     /**

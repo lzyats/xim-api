@@ -131,7 +131,7 @@ public class ChatFriendServiceImpl extends BaseServiceImpl<ChatFriend> implement
         this.clearCache(current, userId);
         // 通知推送
         if (StringUtils.isEmpty(remark)) {
-            pushSetting(current, userId, ChatFriend.LABEL_REMARK, friend.getNickname());
+            pushSetting(current, userId, ChatFriend.LABEL_REMARK, friendVo.getNickname());
         } else {
             pushSetting(current, userId, ChatFriend.LABEL_REMARK, remark);
         }

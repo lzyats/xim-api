@@ -7,6 +7,7 @@ import cn.hutool.json.JSONObject;
 import com.platform.common.aspectj.AppLog;
 import com.platform.common.aspectj.VersionRepeat;
 import com.platform.common.enums.LogTypeEnum;
+import com.platform.common.enums.YesOrNoEnum;
 import com.platform.common.exception.BaseException;
 import com.platform.common.redis.RedisUtils;
 import com.platform.common.web.domain.AjaxResult;
@@ -150,7 +151,7 @@ public class FriendMomentsController extends BaseController {
         String redisKey = REDIS_CHAT_ROBOT+":comment:"+friendComments.getMomentId()+"-"+friendComments.getUserId();
         Long count = redisUtils.increment(redisKey, 1, 1, TimeUnit.DAYS);
         if (count > 5) {
-            return AjaxResult.fail("同一信息每天最多评论3条");
+            return AjaxResult.fail("同一信息每天最多评论5条");
         }
         friendCommentsService.add(friendComments);
         // 发送通知
@@ -168,6 +169,19 @@ public class FriendMomentsController extends BaseController {
         friendMomentsService.admomnet(momentVo02);
         return AjaxResult.successMsg("新增成功");
     }
+
+    /**
+     * 删除朋友圈信息
+     */
+    @VersionRepeat(VersionEnum.V1_0_0)
+    @AppLog(value = title, type = LogTypeEnum.DELETE)
+    @PostMapping("/delete")
+    public AjaxResult delete(@RequestParam(name = "momentId") Long momentId) {
+        friendMomentsService.deleteMoment(momentId);
+        return AjaxResult.successMsg("新增成功");
+    }
+
+
 
     /**
      * 拉取消息

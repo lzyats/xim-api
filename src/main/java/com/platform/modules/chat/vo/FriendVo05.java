@@ -15,6 +15,8 @@ public class FriendVo05 {
     @Size(max = 15, message = "昵称长度不能大于15")
     private String remark;
 
+    private String nickname;
+
     public void setRemark(String remark) {
         this.remark = StrUtil.trim(remark);
     }

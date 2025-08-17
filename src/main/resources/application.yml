@@ -73,6 +73,7 @@ filter:
       - /inform/user
       - /inform/group
       - /common/feedback
+      - /friend/moments
   # 地址转换
   path:
     # 前缀，默认/webApi
