@@ -18,4 +18,9 @@ public interface ChatPortraitDao extends BaseDao<ChatPortrait> {
      */
     List<ChatPortrait> queryList(ChatPortrait chatPortrait);
 
+    /**
+     * 查询列表
+     */
+    List<String> queryPortraits(String chatType);
+
 }

@@ -12,17 +12,20 @@ import com.platform.common.web.controller.BaseController;
 import com.platform.common.web.domain.AjaxResult;
 import com.platform.common.web.page.TableDataInfo;
 import com.platform.common.web.version.VersionEnum;
+import com.platform.modules.chat.enums.ChatTalkEnum;
 import com.platform.modules.chat.service.ChatUserInfoService;
 import com.platform.modules.chat.service.ChatUserService;
 import com.platform.modules.chat.vo.*;
 import com.platform.modules.common.enums.MessageTypeEnum;
 import com.platform.modules.common.service.MessageService;
 import com.platform.modules.chat.service.ChatUserSignService;
+import com.platform.modules.chat.service.ChatPortraitService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * 我的
@@ -40,6 +43,9 @@ public class MineController extends BaseController {
 
     @Resource
     private  ChatUserSignService chatUserSignService;
+
+    @Resource
+    private  ChatPortraitService chatPortraitService;
 
     @Resource
     private MessageService messageService;
@@ -86,6 +92,17 @@ public class MineController extends BaseController {
     @GetMapping("/getInfo")
     public AjaxResult getInfo() {
         return AjaxResult.success(chatUserService.getInfo(),PlatformConfig.SECRET);
+    }
+
+    /**
+     * 获取基本信息
+     */
+    @VersionRepeat(VersionEnum.V1_0_0)
+    @GetMapping("/getAva")
+    public AjaxResult getAva() {
+        List<String> data=chatPortraitService.queryPortraitList(ChatTalkEnum.FRIEND);
+        //return AjaxResult.success(data);
+        return AjaxResult.success(data,PlatformConfig.SECRET);
     }
 
     /**

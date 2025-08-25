@@ -42,3 +42,4 @@ nbdist/
 !*/build/*.html
 !*/build/*.xml
 /src/main/resources/application-dev.yml
+/src/main/resources/application-dev.yml

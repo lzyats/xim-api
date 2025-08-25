@@ -252,5 +252,6 @@ public class AppConstants {
      * 系统缓存
      */
     public static final String REDIS_COMMON_SYS= "common:sys";
+    public static final String REDIS_COMMON_PORTRAIT= "common:portrait";
 
 }

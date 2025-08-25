@@ -19,5 +19,11 @@
             </if>
         </where>
     </select>
-
+    <!-- 修改后：只返回portrait，条件为status=Y且chat_type使用参数传递 -->
+    <select id="queryPortraits" resultType="java.lang.String">
+        select portrait from chat_portrait
+        where status = 'Y'
+          and chat_type = #{chat_type}
+        order by id asc
+    </select>
 </mapper>
