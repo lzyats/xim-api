@@ -175,9 +175,9 @@ public class FriendMomentsController extends BaseController {
      */
     @VersionRepeat(VersionEnum.V1_0_0)
     @AppLog(value = title, type = LogTypeEnum.DELETE)
-    @PostMapping("/delete")
-    public AjaxResult delete(@RequestParam(name = "momentId") Long momentId) {
-        friendMomentsService.deleteMoment(momentId);
+    @PostMapping("/delete/{momentId}/{msgId}")
+    public AjaxResult delete(@PathVariable Long momentId,@PathVariable Long msgId) {
+        friendMomentsService.deleteMoment(momentId,msgId);
         return AjaxResult.successMsg("新增成功");
     }
 

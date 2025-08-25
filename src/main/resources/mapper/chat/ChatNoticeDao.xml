@@ -4,7 +4,7 @@
 
     <!-- 字段集 -->
     <sql id="baseSql">
-        select notice_id, title, content, status, create_time from chat_notice
+        select notice_id, title, content, status, create_time, update_time, isindex from chat_notice
     </sql>
 
     <!-- 查询列表字段 -->

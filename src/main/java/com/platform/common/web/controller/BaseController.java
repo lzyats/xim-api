@@ -123,10 +123,24 @@ public class BaseController {
     }
 
     /**
+     * 响应请求分页数据加密
+     */
+    protected TableDataInfo getDataTable(PageInfo<?> list,String key) {
+        return new TableDataInfo(list.getList(), list.getTotal(),key);
+    }
+
+    /**
      * 响应请求分页数据
      */
     protected TableDataInfo getDataTable(List<?> list) {
         return new TableDataInfo(list, new PageInfo(list).getTotal());
+    }
+
+    /**
+     * 响应请求分页数据加密
+     */
+    protected TableDataInfo getDataTable(List<?> list,String key) {
+        return new TableDataInfo(list, new PageInfo(list).getTotal(),key);
     }
 
 }

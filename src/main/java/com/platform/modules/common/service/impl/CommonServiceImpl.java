@@ -86,8 +86,7 @@ public class CommonServiceImpl implements CommonService {
     @Override
     public CommonVo06 getConfig() {
         logger.info("获取配置信息");
-        String redisKey = AppConstants.REDIS_COMMON_CONFIG; // 假设配置缓存KEY
-
+        String redisKey = AppConstants.REDIS_COMMON_CONFIG+"one"; // 假设配置缓存KEY
         try {
             // 1. 先查询Redis缓存
             CommonVo06 cachedResult = redisJsonUtil.get(redisKey, CommonVo06.class);
@@ -133,6 +132,10 @@ public class CommonServiceImpl implements CommonService {
                 .setSigntoal(dataMap.get(ChatConfigEnum.SYS_SIGNTOAL).getYesOrNo())
                 .setCashname(dataMap.get(ChatConfigEnum.SYS_CASHNAME).getStr())
                 .setCashstr(dataMap.get(ChatConfigEnum.SYS_CASHSTR).getStr())
+                .setInvoadus(dataMap.get(ChatConfigEnum.SYS_INVOADUS).getYesOrNo())
+                .setSendmoment(dataMap.get(ChatConfigEnum.SYS_SENDMOMENT).getYesOrNo())
+                .setFriends(dataMap.get(ChatConfigEnum.SYS_FRIENDS).getStr())
+                .setNotype(dataMap.get(ChatConfigEnum.NOTICE_NOTYPE).getInt())
                 ;
 
 

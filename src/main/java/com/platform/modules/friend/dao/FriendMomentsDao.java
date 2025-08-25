@@ -30,7 +30,7 @@ public interface FriendMomentsDao extends BaseDao<FriendMoments> {
     List<FriendMoments> queryDataList(FriendMoments friendMoments);
 
     /**
-     * 获取朋友圈动态并关联用户昵称和头像
+     * 获取指定ID朋友圈列表
      */
     List<Map<String, Object>> getMomentsWithUserInfo(Long userId);
 

@@ -1,12 +1,13 @@
 package com.platform.modules.chat.service.impl;
 
+import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
+import com.alibaba.fastjson.TypeReference;
 import com.platform.common.constant.AppConstants;
 import com.platform.common.enums.YesOrNoEnum;
-import com.platform.common.redis.RedisUtils;
+import com.platform.common.redis.RedisJsonUtil; // 替换RedisUtils为RedisJsonUtil
+import com.platform.common.web.page.PageDomain;
+import com.platform.common.web.page.TableSupport;
 import com.platform.common.web.service.impl.BaseServiceImpl;
 import com.platform.modules.chat.dao.ChatNoticeDao;
 import com.platform.modules.chat.domain.ChatNotice;
@@ -18,9 +19,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service("chatNoticeService")
@@ -31,15 +32,11 @@ public class ChatNoticeServiceImpl extends BaseServiceImpl<ChatNotice> implement
     @Resource
     private ChatNoticeDao chatNoticeDao;
 
+    // 1. 替换RedisUtils为RedisJsonUtil（FastJSON封装工具）
     @Autowired
-    private RedisUtils redisUtils;
+    private RedisJsonUtil redisJsonUtil;
 
-    // 初始化Gson（禁用HTML转义，避免额外字符）
-    private final Gson gson = new GsonBuilder()
-            .setDateFormat("yyyy-MM-dd HH:mm:ss")
-            .disableHtmlEscaping() // 关键：避免特殊字符被转义
-            .serializeNulls()
-            .create();
+    // 2. 删除Gson相关初始化代码（无需保留）
 
     @Autowired
     public void setBaseDao() {
@@ -53,71 +50,66 @@ public class ChatNoticeServiceImpl extends BaseServiceImpl<ChatNotice> implement
 
     @Override
     public PageInfo<CommonVo04> queryDataList() {
-        String redisKey = AppConstants.REDIS_COMMON_NOTIC + "list";
+        // 执行分页
+        PageDomain pageDomain = TableSupport.getPageDomain();
+        int pageNum=pageDomain.getPageNum();
+        // 1. 定义分页参数（可根据业务调整pageSize）
+        int pageSize = 10; // 每页显示10条数据
+        // 缓存键按页码区分：原键 + 页码（如 "notice:list:1", "notice:list:2"）
+        String redisKey = AppConstants.REDIS_COMMON_NOTIC + "list:" + pageNum;
+        long cacheTimeout = 120;
+        TimeUnit cacheTimeUnit = TimeUnit.SECONDS;
 
         try {
-            String cachedJson = redisUtils.get(redisKey);
-            if (cachedJson != null && !cachedJson.isEmpty()) {
-                // 清理可能的特殊字符（如前后空格、引号）
-                cachedJson = cleanJsonString(cachedJson);
+            // 2. 读取当前页码的缓存
+            PageInfo<CommonVo04> cachedPageInfo = redisJsonUtil.get(
+                    redisKey,
+                    new TypeReference<PageInfo<CommonVo04>>() {}
+            );
 
-                // 解析为PageInfo对象
-                Type pageInfoType = new TypeToken<PageInfo<CommonVo04>>() {}.getType();
-                PageInfo<CommonVo04> cachedPageInfo = gson.fromJson(cachedJson, pageInfoType);
-
-                logger.info("从Redis缓存获取数据，key: {}", redisKey);
+            if (cachedPageInfo != null) {
+                logger.info("从Redis缓存获取Notice第{}页数据成功，key: {}", pageNum, redisKey);
                 return cachedPageInfo;
             }
         } catch (Exception e) {
-            logger.error("Redis缓存解析失败，清除缓存，key: {}", redisKey, e);
-            redisUtils.delete(redisKey); // 自动清除异常缓存
+            logger.error("Redis缓存读取/解析失败，清除异常缓存，key: {}", redisKey, e);
+            redisJsonUtil.delete(redisKey); // 清除当前页码的异常缓存
         }
 
-        // 数据库查询
-        ChatNotice query = new ChatNotice().setStatus(YesOrNoEnum.YES);
-        List<ChatNotice> dataList = queryList(query);
-
-        // 转换为VO
-        List<CommonVo04> resultList = dataList.stream()
-                .filter(Objects::nonNull)
-                .map(CommonVo04::new)
-                .collect(Collectors.toList());
-
-        // 构建分页信息
-        PageInfo<CommonVo04> pageInfo = new PageInfo<>(resultList);
-        pageInfo.setPageNum(1);
-        pageInfo.setPageSize(resultList.size());
-        pageInfo.setTotal(resultList.size());
-        pageInfo.setPages(1);
-
-        // 序列化并缓存（确保格式正确）
+        // 3. 数据库分页查询
         try {
-            // 生成纯净的JSON对象字符串（无额外引号）
-            String jsonStr = gson.toJson(pageInfo);
-            logger.debug("写入Redis的JSON: {}", jsonStr); // 调试：确认格式正确
-            redisUtils.set(redisKey, jsonStr, 120);
-        } catch (Exception e) {
-            logger.error("写入Redis缓存失败，key: {}", redisKey, e);
-        }
+            // 3.1 设置分页参数（使用MyBatis分页插件，需提前配置）
+            PageHelper.startPage(pageNum, pageSize,"create_time desc");
+            // 3.2 查询当前页数据（带分页条件）
+            ChatNotice query = new ChatNotice().setStatus(YesOrNoEnum.YES);
+            List<ChatNotice> dataList = queryList(query); // 数据库查询方法（自动分页）
 
-        return pageInfo;
+            // 3.3 转换为VO
+            List<CommonVo04> resultList = dataList.stream()
+                    .filter(Objects::nonNull)
+                    .map(CommonVo04::new)
+                    .collect(Collectors.toList());
+
+            // 3.4 构建分页信息（PageHelper自动填充总记录数等）
+            PageInfo<CommonVo04> pageInfo = new PageInfo<>(resultList);
+            // 补充分页元数据（PageHelper已自动处理，这里仅作明确展示）
+            pageInfo.setPageNum(pageNum);
+            pageInfo.setPageSize(pageSize);
+
+            // 4. 写入当前页码的缓存
+            try {
+                redisJsonUtil.set(redisKey, pageInfo, cacheTimeout, cacheTimeUnit);
+                logger.info("写入Redis缓存成功，key: {}, 页码: {}, 过期时间: {}秒",
+                        redisKey, pageNum, cacheTimeout);
+            } catch (Exception e) {
+                logger.error("写入Redis缓存失败，key: {}, 页码: {}", redisKey, pageNum, e);
+            }
+
+            return pageInfo;
+        } finally {
+            // 清除分页插件的线程变量（避免内存泄漏）
+            PageHelper.clearPage();
+        }
     }
 
-    /**
-     * 清理JSON字符串中的非法字符（解决核心错误）
-     */
-    private String cleanJsonString(String json) {
-        if (json == null) {
-            return null;
-        }
-        // 1. 去除前后空格
-        json = json.trim();
-        // 2. 去除首尾可能的引号（例如："{...}" → {...}）
-        if (json.startsWith("\"") && json.endsWith("\"")) {
-            json = json.substring(1, json.length() - 1);
-        }
-        // 3. 去除可能的转义字符（例如：\\" → "）
-        json = json.replace("\\\"", "\"");
-        return json;
-    }
 }

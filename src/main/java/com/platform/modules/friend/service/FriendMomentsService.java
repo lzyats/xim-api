@@ -54,6 +54,6 @@ public interface FriendMomentsService extends BaseService<FriendMoments> {
       * 删除指定朋友圈
       * @param momentId
       */
-     void deleteMoment(Long momentId);
+     void deleteMoment(Long momentId,Long msgId);
 
 }

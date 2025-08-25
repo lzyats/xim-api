@@ -1,9 +1,12 @@
 package com.platform.modules.chat.controller;
 
 import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.platform.common.aspectj.VersionRepeat;
+import com.platform.common.config.PlatformConfig;
 import com.platform.common.exception.BaseException;
 import com.platform.common.shiro.ShiroUtils;
+import com.platform.common.utils.EncryptUtils;
 import com.platform.common.web.controller.BaseController;
 import com.platform.common.web.domain.AjaxResult;
 import com.platform.common.web.version.VersionEnum;
@@ -37,8 +40,14 @@ public class MessageController extends BaseController {
     @VersionRepeat(VersionEnum.V1_0_0)
     @PostMapping("/sendFriendMsg")
     public AjaxResult sendFriendMsg(@Validated @RequestBody ChatVo01 chatVo) {
+        JSONObject content=chatVo.getContent();
+        String contentValue = content.getStr("content");
         Long userId = chatVo.getUserId();
         Long current = ShiroUtils.getUserId();
+        //执行内容解密
+        String strdata=EncryptUtils.decrypt(JSONUtil.toJsonStr(contentValue), PlatformConfig.SECRET);
+        log.info("content:{}", strdata);
+        chatVo.setContent(new JSONObject(strdata));
         // 自己消息
         if (current.equals(userId)) {
             switch (chatVo.getMsgType()) {
@@ -95,6 +104,10 @@ public class MessageController extends BaseController {
     @VersionRepeat(VersionEnum.V1_0_0)
     @PostMapping("/sendGroupMsg")
     public AjaxResult sendGroupMsg(@Validated @RequestBody ChatVo02 chatVo) {
+        JSONObject content=chatVo.getContent();
+        String contentValue = content.getStr("content");
+        String strdata=EncryptUtils.decrypt(JSONUtil.toJsonStr(contentValue), PlatformConfig.SECRET);
+        chatVo.setContent(new JSONObject(strdata));
         switch (chatVo.getMsgType()) {
             default:
                 throw new BaseException("消息类型错误");
@@ -126,6 +139,10 @@ public class MessageController extends BaseController {
     @VersionRepeat(VersionEnum.V1_0_0)
     @PostMapping("/sendRobotMsg")
     public AjaxResult sendRobotMsg(@Validated @RequestBody ChatVo03 chatVo) {
+        JSONObject content=chatVo.getContent();
+        String contentValue = content.getStr("content");
+        String strdata=EncryptUtils.decrypt(JSONUtil.toJsonStr(contentValue), PlatformConfig.SECRET);
+        chatVo.setContent(new JSONObject(strdata));
         switch (chatVo.getMsgType()) {
             case TEXT:
             case IMAGE:

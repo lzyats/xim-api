@@ -4,6 +4,7 @@ import cn.hutool.core.lang.Dict;
 import cn.hutool.core.lang.Validator;
 import com.platform.common.aspectj.SubmitRepeat;
 import com.platform.common.aspectj.VersionRepeat;
+import com.platform.common.config.PlatformConfig;
 import com.platform.common.enums.GenderEnum;
 import com.platform.common.exception.BaseException;
 import com.platform.common.shiro.ShiroUtils;
@@ -84,7 +85,7 @@ public class MineController extends BaseController {
     @VersionRepeat(VersionEnum.V1_0_0)
     @GetMapping("/getInfo")
     public AjaxResult getInfo() {
-        return AjaxResult.success(chatUserService.getInfo());
+        return AjaxResult.success(chatUserService.getInfo(),PlatformConfig.SECRET);
     }
 
     /**

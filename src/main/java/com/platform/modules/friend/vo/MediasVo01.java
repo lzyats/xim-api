@@ -18,6 +18,12 @@ public class MediasVo01 {
     /** 媒体资源 */
     private String url;
 
+    /** 媒体宽度*/
+    private int width;
+
+    /** 媒体高度 */
+    private int height;
+
     /** 缩略图 */
     private String thumbnail;
 }

@@ -243,4 +243,14 @@ public class AppConstants {
 
     public static final String REDIS_MINE_SIGN= "mine:sign:";
 
+    /**
+     * 朋友圈缓存
+     */
+    public static final String REDIS_PUSH_MOMENT= "push:moment:";
+
+    /**
+     * 系统缓存
+     */
+    public static final String REDIS_COMMON_SYS= "common:sys";
+
 }

@@ -1,6 +1,7 @@
 package com.platform.modules.common.controller;
 
 import com.platform.common.aspectj.VersionRepeat;
+import com.platform.common.config.PlatformConfig;
 import com.platform.common.exception.BaseException;
 import com.platform.common.web.controller.BaseController;
 import com.platform.common.web.domain.AjaxResult;
@@ -11,6 +12,8 @@ import com.platform.modules.chat.service.ChatFeedbackService;
 import com.platform.modules.chat.service.ChatHelpService;
 import com.platform.modules.chat.service.ChatNoticeService;
 import com.platform.modules.chat.service.ChatVersionService;
+import com.platform.modules.sys.domain.SysHtml;
+import com.platform.modules.sys.service.SysHtmlService;
 import com.platform.modules.common.service.CommonService;
 import com.platform.modules.common.service.FileService;
 import com.platform.modules.common.vo.CommonVo01;
@@ -19,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -49,6 +53,10 @@ public class CommonController extends BaseController {
     @Resource
     private ChatNoticeService chatNoticeService;
 
+    @Resource
+    private SysHtmlService sysHtmlService;
+
+
     /**
      * 获取映射
      */
@@ -63,9 +71,9 @@ public class CommonController extends BaseController {
      * 获取上传凭证
      */
     @VersionRepeat(VersionEnum.V1_0_0)
-    @RequestMapping(value = "/getUploadToken")
-    public AjaxResult getUploadToken() {
-        return AjaxResult.success(fileService.getUploadToken());
+    @RequestMapping(value = "/getUploadToken/{fileExt}")
+    public AjaxResult getUploadToken(@PathVariable String fileExt) {
+        return AjaxResult.success(fileService.getUploadToken(fileExt));
     }
 
     /**
@@ -78,6 +86,27 @@ public class CommonController extends BaseController {
             throw new BaseException("上传文件不能为空");
         }
         return AjaxResult.success(fileService.upload(file));
+    }
+
+    /**
+     * 获取上传凭证
+     */
+    @VersionRepeat(VersionEnum.V1_0_0)
+    @RequestMapping(value = "/getUploadTokenu/{fileExt}")
+    public AjaxResult getUploadTokenu(@PathVariable String fileExt) {
+        return AjaxResult.success(fileService.getUploadTokenu(fileExt));
+    }
+
+    /**
+     * 上传文件
+     */
+    @VersionRepeat(VersionEnum.V1_0_0)
+    @PostMapping("/uploadu")
+    public AjaxResult uploadu(MultipartFile file) {
+        if (file == null) {
+            throw new BaseException("上传文件不能为空");
+        }
+        return AjaxResult.success(fileService.uploadu(file));
     }
 
     /**
@@ -116,7 +145,8 @@ public class CommonController extends BaseController {
     @GetMapping("/getConfig")
     public AjaxResult getConfig() {
         CommonVo06 data = commonService.getConfig();
-        return AjaxResult.success(data);
+        //log.info("密钥：{}",PlatformConfig.SECRET);
+        return AjaxResult.success(data, PlatformConfig.SECRET);
     }
 
     /**
@@ -136,7 +166,17 @@ public class CommonController extends BaseController {
     @GetMapping("/getNoticeList")
     public TableDataInfo getNoticeList() {
         startPage("createTime desc");
-        return getDataTable(chatNoticeService.queryDataList());
+        return getDataTable(chatNoticeService.queryDataList(),PlatformConfig.SECRET);
+    }
+
+    /**
+     * 通知列表
+     */
+    @VersionRepeat(VersionEnum.V1_0_0)
+    @GetMapping("/getHtml/{roulekey}")
+    public AjaxResult getHtml(@PathVariable String roulekey) {
+       SysHtml data= sysHtmlService.getInfo(roulekey);
+        return AjaxResult.success(data,PlatformConfig.SECRET);
     }
 
 }

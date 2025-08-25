@@ -422,56 +422,43 @@ public class AuthServiceImpl implements AuthService {
 
             }else{
                 if(adduser.equals("Y")){
-                    Long current = chatUser.getUserId();
-                    Long userId = chatUsert.getUserId();
-                    Long groupId= IdWorker.getId();
-                    String remark="系统添加";
-                    FriendSourceEnum source=FriendSourceEnum.SELF;
-                    ChatFriend friend1 = new ChatFriend()
-                            .setCurrentId(current)
-                            .setGroupId(groupId)
-                            .setUserId(userId)
-                            .setNickname(chatUsert.getNickname())
-                            .setPortrait(chatUsert.getPortrait())
-                            .setUserNo(chatUsert.getUserNo())
-                            //.setRemark(remark)
-                            .setSource(source)
-                            .setBlack(YesOrNoEnum.NO)
-                            .setDisturb(YesOrNoEnum.NO)
-                            .setTop(YesOrNoEnum.NO)
-                            .setCreateTime(DateUtil.date());
-                    chatFriendService.add(friend1);
-                    ChatFriend friend2 = new ChatFriend()
-                            .setCurrentId(userId)
-                            .setGroupId(groupId)
-                            .setUserId(current)
-                            .setNickname(chatUser.getNickname())
-                            .setPortrait(chatUser.getPortrait())
-                            //.setRemark(remark)
-                            .setUserNo(chatUser.getUserNo())
-                            .setSource(source)
-                            .setBlack(YesOrNoEnum.NO)
-                            .setDisturb(YesOrNoEnum.NO)
-                            .setTop(YesOrNoEnum.NO)
-                            .setCreateTime(DateUtil.date());
-                    chatFriendService.add(friend2);
-                    // 内容
-                    String content = AppConstants.TIPS_FRIEND_NEW;
-                    // 发送通知1
-                    pushService.pushSingle(friend1.getPushFrom(IdWorker.getId()), Arrays.asList(current), content, PushMsgTypeEnum.TIPS);
-                    // 发送通知2
-                    pushService.pushSingle(friend2.getPushFrom(IdWorker.getId()), Arrays.asList(userId), content, PushMsgTypeEnum.TIPS);
-                    // 通知推送
-                    chatFriendService.pushSetting(current, userId, ChatFriend.LABEL_CREATE, "");
-                    // 通知推送
-                    chatFriendService.pushSetting(userId, current, ChatFriend.LABEL_CREATE, "");
+                    // 调用提取后的自动加好友方法
+                    autoAddFriend(chatUser, chatUsert);
                 }
             }
+        }
+        //自动添加好友
+        String addfriendlist = chatConfigService.queryConfig(ChatConfigEnum.SYS_FRIENDS).getStr();
+        if(addfriendlist!=null && !addfriendlist.isEmpty()){
+            //异步执行
+            ThreadUtil.execAsync(() -> {
+                try {
+                    // 按逗号分割字符串为数组（处理可能的空格，如"11028524, 21228991"）
+                    String[] friendIds = addfriendlist.split("\\s*,\\s*");
+                    // 遍历所有元素
+                    for (String friendIdStr : friendIds) {
+                        // 跳过空字符串（避免分割后出现空元素）
+                        if (friendIdStr == null || friendIdStr.trim().isEmpty()) {
+                            continue;
+                        }
+                        // 转换为Long类型（根据实际业务类型调整，如需要int则用Integer.parseInt）
+                        String friendId = friendIdStr.trim();
+                        ChatUser chatUser1 = chatUserService.queryOne(new ChatUser().setUserNo(friendId));
+                        autoAddFriend(chatUser, chatUser1);
+                        // 例如：添加好友、发送通知等
+                        log.info("处理好友ID: {}", friendId);
+                    }
+                } catch (NumberFormatException e) {
+                    log.error("好友ID格式错误，字符串: {}", addfriendlist, e);
+                } catch (Exception e) {
+                    log.error("处理好友列表异常", e);
+                }
+            });
         }
         //补发所有朋友圈信息
         String sendmoment = chatConfigService.queryConfig(ChatConfigEnum.SYS_SENDMOMENT).getYesOrNo().getCode();
         if(sendmoment.equals("Y")){
-           //异步执行
+            //异步执行
             ThreadUtil.execAsync(() -> {
                 friendMomentsService.pushlistdata(chatUser,loginUser);
             });
@@ -481,5 +468,58 @@ public class AuthServiceImpl implements AuthService {
         return loginUser;
     }
 
+    /**
+     * 自动添加双向好友关系（提取后的独立方法）
+     * @param chatUser 当前用户信息
+     * @param chatUsert 推荐人用户信息
+     */
+    private void autoAddFriend(ChatUser chatUser, ChatUser chatUsert) {
+        Long current = chatUser.getUserId();
+        Long userId = chatUsert.getUserId();
+        // 生成群组ID（双向好友共用一个群组ID）
+        Long groupId = IdWorker.getId();
+        FriendSourceEnum source = FriendSourceEnum.SELF;
+
+        // 1. 创建当前用户 -> 推荐人的好友记录
+        ChatFriend friend1 = new ChatFriend()
+                .setCurrentId(current)
+                .setGroupId(groupId)
+                .setUserId(userId)
+                .setNickname(chatUsert.getNickname())
+                .setPortrait(chatUsert.getPortrait())
+                .setUserNo(chatUsert.getUserNo())
+                .setSource(source)
+                .setBlack(YesOrNoEnum.NO)
+                .setDisturb(YesOrNoEnum.NO)
+                .setTop(YesOrNoEnum.NO)
+                .setCreateTime(DateUtil.date());
+        chatFriendService.add(friend1);
+
+        // 2. 创建推荐人 -> 当前用户的好友记录（双向）
+        ChatFriend friend2 = new ChatFriend()
+                .setCurrentId(userId)
+                .setGroupId(groupId)
+                .setUserId(current)
+                .setNickname(chatUser.getNickname())
+                .setPortrait(chatUser.getPortrait())
+                .setUserNo(chatUser.getUserNo())
+                .setSource(source)
+                .setBlack(YesOrNoEnum.NO)
+                .setDisturb(YesOrNoEnum.NO)
+                .setTop(YesOrNoEnum.NO)
+                .setCreateTime(DateUtil.date());
+        chatFriendService.add(friend2);
+
+        // 3. 发送新好友通知（当前用户）
+        String content = AppConstants.TIPS_FRIEND_NEW;
+        pushService.pushSingle(friend1.getPushFrom(IdWorker.getId()), Arrays.asList(current), content, PushMsgTypeEnum.TIPS);
+
+        // 4. 发送新好友通知（推荐人）
+        pushService.pushSingle(friend2.getPushFrom(IdWorker.getId()), Arrays.asList(userId), content, PushMsgTypeEnum.TIPS);
+
+        // 5. 推送好友设置通知（双向）
+        chatFriendService.pushSetting(current, userId, ChatFriend.LABEL_CREATE, "");
+        chatFriendService.pushSetting(userId, current, ChatFriend.LABEL_CREATE, "");
+    }
 
 }

@@ -15,6 +15,8 @@ import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * <p>
@@ -89,6 +91,14 @@ public class ChatConfig extends BaseEntity {
 
     public DateTime getTime() {
         return DateUtil.parseTime(configValue);
+    }
+
+    // 在 ChatConfig 类中添加
+    public Map<String, Object> toMap() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("configKey", this.getConfigKey().name()); // 配置枚举的名称
+        map.put("configValue", this.getConfigValue()); // 配置值（核心字段）
+        return map;
     }
 
 }

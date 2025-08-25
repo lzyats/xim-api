@@ -27,6 +27,10 @@ public class CommonVo06 {
      */
     private String notice = "";
     /**
+     * 系统通告类型
+     */
+    private int notype = 0;
+    /**
      * 备案信息
      */
     private String beian;
@@ -57,6 +61,20 @@ public class CommonVo06 {
     private double invo;
 
     /**
+     * 注册自动加推荐人
+     */
+    private YesOrNoEnum invoadus;
+
+    /**
+     * 注册自动补发朋友圈
+     */
+    private YesOrNoEnum sendmoment;
+    /**
+     * 自动加好友ID
+     */
+    private String friends;
+
+    /**
      * 签到奖励
      */
     private double sign;
@@ -72,7 +90,6 @@ public class CommonVo06 {
      * 货币符号
      */
     private String cashstr;
-
 
 
 }

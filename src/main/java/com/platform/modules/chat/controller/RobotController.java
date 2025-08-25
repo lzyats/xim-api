@@ -1,6 +1,7 @@
 package com.platform.modules.chat.controller;
 
 import com.platform.common.aspectj.VersionRepeat;
+import com.platform.common.config.PlatformConfig;
 import com.platform.common.web.controller.BaseController;
 import com.platform.common.web.domain.AjaxResult;
 import com.platform.common.web.version.VersionEnum;
@@ -33,7 +34,7 @@ public class RobotController extends BaseController {
     @GetMapping("/getRobotList")
     public AjaxResult getRobotList() {
         List<RobotVo01> dataList = chatRobotService.getRobotList();
-        return AjaxResult.success(dataList);
+        return AjaxResult.success(dataList, PlatformConfig.SECRET);
     }
 
     /**

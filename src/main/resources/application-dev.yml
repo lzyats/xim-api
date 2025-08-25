@@ -33,7 +33,7 @@ platform:
   # email短信
   email: Y
   # 消息秘钥
-  secret: 3c17c816846c231c
+  secret: YTY9FRenXiJNeE2x
 
 # 过滤器配置
 filter:
@@ -49,23 +49,6 @@ filter:
     secret: 3e9f44aa8eaef18e
 
 # MQ配置
-rocketmq1:
-  # mq开关
-  enabled: Y
-  # 服务接入地址
-  name-server: MQ_INST_1341850812983784_BZgs602v.cn-chengdu.mq.aliyuncs.com:80
-  # 生产者公共配置
-  producer:
-    # AccessKey
-    access-key: LTAI5tSE8j4h1jmXwwKTkxQL
-    # SecretKey
-    secret-key: PWJjagLg3ttRRd82CCshhVeiclu4L6
-    # 生产者组
-    group: testim
-  # 生产主题
-  topic: testim
-
-# MQ配置
 rocketmq:
   # mq开关
   enabled: Y
@@ -76,7 +59,7 @@ rocketmq:
     # AccessKey
     access-key: admin123
     # SecretKey
-    secret-key: MySecretKey@2025
+    secret-key: admin123admin123
     # 生产者组
     group: testim
   # 生产主题
@@ -95,10 +78,35 @@ push:
   # 个推masterSecret
   masterSecret: WXc25xbCrrAsS4ZILOl8y7
 
-# 上传配置
-
-# 上传配置MINIO
+# 上传配置（七牛云）
+uploadu-kodo:
+  uploadType: kodo
+  serverUrl: http://img.amoa.cn
+  accessKey: Njqdcgj1WsKn25EFsH7u4Ved0h0TZpfQD0vxfMLT
+  secretKey: dnAVBn_nYgi3FA5TbraMMWIOzGc0N89Xf_1vFOdW
+  bucket: xtestim
+  prefix: alpaca
+  #华南为https://upload-z2.qiniup.com，东南亚为https://upload-as0.qiniup.com
+  region: https://up-as0.qiniup.com
+# 上传配置（阿里云）
 upload:
+  uploadType: oss
+  serverUrl: https://lxim.oss-cn-shenzhen.aliyuncs.com
+  accessKey: LTAI5tSoeLhxbgVUG8xWfU4z
+  secretKey: zCJCa9fuW8sZaUrtB62qVGgftB61Oc
+  bucket: lxim
+  prefix: alpaca
+  region: oss-cn-shenzhen.aliyuncs.com
+uploadu:
+  uploadType: oss
+  serverUrl: https://imsys.oss-cn-guangzhou.aliyuncs.com
+  accessKey: LTAI5tK9paEdR5w5axpRrMCZ
+  secretKey: uP7um6o3jnqLgx3bKf24xqZsBsawk7
+  bucket: imsys
+  prefix: sysimg
+  region: oss-cn-guangzhou.aliyuncs.com
+# 上传配置MINIO
+upload1:
   uploadType: minio
   serverUrl: http://110.42.56.25:19000
   accessKey: minioadmin
@@ -112,10 +120,10 @@ sms:
 
 # 腾讯语音识别
 tencent:
-  enabled: N
-  appId: appId
-  accessKey: accessKey
-  secretKey: secretKey
+  enabled: Y
+  appId: 1302495801
+  accessKey: AKIDdFyb4QfoolfPzQsDPSNBwfHrOpSILE2j
+  secretKey: b9wdBZGtPo4CE9tV0LZgfVAg5NXYbosn
 
 # 音视频通话
 rtc:
@@ -188,8 +196,9 @@ spring:
         #jdbc-url1: jdbc:mysql://rm-2vcq9o3ckk8z27469oo.mysql.cn-chengdu.rds.aliyuncs.com:3306/kaolaim?useAffectedRows=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&verifyServerCertificate=false&serverTimezone=GMT%2B8&allowMultiQueries=true
         #username1: kaolaim
         #password1: QAZ123wsx
-        jdbc-url: jdbc:mysql://110.42.56.25:3306/kaolaim?useAffectedRows=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&verifyServerCertificate=false&serverTimezone=GMT%2B8&allowMultiQueries=true
-        username: root
+        jdbc-url1: jdbc:mysql://110.42.56.25:3306/kaolaim?useAffectedRows=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&verifyServerCertificate=false&serverTimezone=GMT%2B8&allowMultiQueries=true
+        jdbc-url: jdbc:mysql://110.42.56.25:3306/kaolaim?useAffectedRows=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=GMT%2B8&allowMultiQueries=true
+        username: kaolaim
         password: 35446c555b585d37
         hikari:
           maximum-pool-size: 60
@@ -221,13 +230,13 @@ spring:
     # 开关
     enabled: Y
     # 地址
-    host: 127.0.0.1
+    host: 110.42.56.25
     # 端口，默认为6379
     port: 6379
     # 数据库
     database: 0
     # 密码
-    password:
+    password: 123
     # 超时
     timeout: 5000
     # 连接池
@@ -242,10 +251,10 @@ spring:
   # redis 配置
   other:
     # 地址
-    host: 127.0.0.1
+    host: 110.42.56.25
     # 端口，默认为6379
     port: 6379
     # 数据库
-    database: 0
+    database: 1
     # 密码
-    password:
+    password: 123

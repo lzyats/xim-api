@@ -3,6 +3,7 @@ package com.platform.modules.chat.controller;
 import com.github.pagehelper.PageInfo;
 import com.platform.common.aspectj.SubmitRepeat;
 import com.platform.common.aspectj.VersionRepeat;
+import com.platform.common.config.PlatformConfig;
 import com.platform.common.enums.YesOrNoEnum;
 import com.platform.common.exception.BaseException;
 import com.platform.common.web.controller.BaseController;
@@ -82,7 +83,7 @@ public class GroupController extends BaseController {
     @VersionRepeat(VersionEnum.V1_0_0)
     @GetMapping("/groupList")
     public AjaxResult groupList() {
-        return AjaxResult.success(chatGroupService.groupList());
+        return AjaxResult.success(chatGroupService.groupList(), PlatformConfig.SECRET);
     }
 
     /**

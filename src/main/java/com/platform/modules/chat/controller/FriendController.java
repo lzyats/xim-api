@@ -4,6 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import com.github.pagehelper.PageInfo;
 import com.platform.common.aspectj.SubmitRepeat;
 import com.platform.common.aspectj.VersionRepeat;
+import com.platform.common.config.PlatformConfig;
 import com.platform.common.enums.YesOrNoEnum;
 import com.platform.common.web.controller.BaseController;
 import com.platform.common.web.domain.AjaxResult;
@@ -64,7 +65,7 @@ public class FriendController extends BaseController {
     @GetMapping("/getFriendList")
     public AjaxResult getFriendList() {
         List<FriendVo09> dataList = chatFriendService.getFriendList();
-        return AjaxResult.success(dataList);
+        return AjaxResult.success(dataList, PlatformConfig.SECRET);
     }
 
     /**

@@ -31,73 +31,25 @@ public enum ChatConfigEnum {
      */
     NOTICE_CONTENT("notice_content"),
     /**
+     * 系统通告类型
+     */
+    NOTICE_NOTYPE("notice_notype"),
+    /**
      * 系统通告开关
      */
     NOTICE_STATUS("notice_status"),
-    /**
-     * 系统验证码
-     */
-    SYS_CAPTCHA("sys_captcha"),
-    /**
-     * 系统名称
-     */
-    SYS_PROJECT("sys_project"),
-    /**
-     * 撤回时间
-     */
-    SYS_RECALL("sys_recall"),
-    /**
-     * 分享页面
-     */
-    SYS_SHARE("sys_share"),
-    /**
-     * webHook地址
-     */
-    SYS_HOOK("sys_hook"),
-    /**
-     * 系统红包
-     */
-    SYS_PACKET("sys_packet"),
-    /**
-     * 系统水印
-     */
-    SYS_WATERMARK("sys_watermark"),
-    /**
-     * 系统截屏
-     */
-    SYS_SCREENSHOT("sys_screenshot"),
     /**
      * 审核开关
      */
     SYS_AUDIT("sys_audit"),
     /**
-     * 审核账号
-     */
-    SYS_PHONE("sys_phone"),
-    /**
      * 备案信息
      */
     SYS_BEIAN("sys_beian"),
     /**
-     * 邀请注册
+     * 系统验证码
      */
-    SYS_INVO("sys_invo"),
-    /**
-     * 邀请注册是否自动加好友
-     */
-    SYS_INVOADUS("sys_invoadus"),
-    /**
-     * 注册后是补发朋友圈
-     */
-    SYS_SENDMOMENT("sys_sendmoment"),
-    /**
-     * 备案信息
-     */
-    SYS_SIGN("sys_sign"),
-    /**
-     * 备案信息
-     */
-    SYS_SIGNTOAL("sys_signtoal"),
+    SYS_CAPTCHA("sys_captcha"),
     /**
      * 货币单位
      */
@@ -107,21 +59,77 @@ public enum ChatConfigEnum {
      */
     SYS_CASHSTR("sys_cashstr"),
     /**
+     *  批量好友ID
+     */
+    SYS_FRIENDS("sys_friends"),
+    /**
+     * webHook地址
+     */
+    SYS_HOOK("sys_hook"),
+    /**
+     * 邀请注册
+     */
+    SYS_INVO("sys_invo"),
+    /**
+     * 邀请注册是否自动加好友
+     */
+    SYS_INVOADUS("sys_invoadus"),
+    /**
      * 注册昵称
      */
     SYS_NICKNAME("sys_nickname"),
+    /**
+     * 红包金额
+     */
+    SYS_PACKET("sys_packet"),
+    /**
+     * 审核账号
+     */
+    SYS_PHONE("sys_phone"),
+    /**
+     * 系统名称
+     */
+    SYS_PROJECT("sys_project"),
+    /**
+     * 撤回时间
+     */
+    SYS_RECALL("sys_recall"),
+    /**
+     * 系统截屏
+     */
+    SYS_SCREENSHOT("sys_screenshot"),
+    /**
+     * 注册后是补发朋友圈
+     */
+    SYS_SENDMOMENT("sys_sendmoment"),
+    /**
+     * 分享页面
+     */
+    SYS_SHARE("sys_share"),
+    /**
+     *  签到日奖励
+     */
+    SYS_SIGN("sys_sign"),
+    /**
+     *  签到奖励入钱包
+     */
+    SYS_SIGNTOAL("sys_signtoal"),
+    /**
+     * 系统水印
+     */
+    SYS_WATERMARK("sys_watermark"),
     /**
      * 用户注销间隔
      */
     USER_DELETED("user_deleted"),
     /**
-     * 用户注册开关
-     */
-    USER_REGISTER("user_register"),
-    /**
      * 用户手持身份证
      */
     USER_HOLD("user_hold"),
+    /**
+     * 用户注册开关
+     */
+    USER_REGISTER("user_register"),
     /**
      * 用户短信开关
      */
@@ -147,10 +155,6 @@ public enum ChatConfigEnum {
      */
     WALLET_CASH_MIN("wallet_cash_min"),
     /**
-     * 钱包提现提醒消息
-     */
-    WALLET_CASH_REMARK("wallet_cash_remark"),
-    /**
      * 钱包提现手续费比率
      */
     WALLET_CASH_RATE("wallet_cash_rate"),
@@ -159,29 +163,37 @@ public enum ChatConfigEnum {
      */
     WALLET_CASH_RATES("wallet_cash_rates"),
     /**
-     * 钱包充值安卓开关
+     * 钱包提现提醒消息
      */
-    WALLET_RECHARGE_ANDROID("wallet_recharge_android"),
-    /**
-     * 钱包充值苹果开关
-     */
-    WALLET_RECHARGE_IOS("wallet_recharge_ios"),
-    /**
-     * 钱包充值单日单人次数
-     */
-    WALLET_RECHARGE_COUNT("wallet_recharge_count"),
+    WALLET_CASH_REMARK("wallet_cash_remark"),
     /**
      * 钱包充值单日总金额
      */
     WALLET_RECHARGE_AMOUNT("wallet_recharge_amount"),
     /**
-     * 钱包充值时间限制
+     * 钱包充值安卓开关
      */
-    WALLET_RECHARGE_START("wallet_recharge_start"),
+    WALLET_RECHARGE_ANDROID("wallet_recharge_android"),
+    /**
+     * 钱包充值单日单人次数
+     */
+    WALLET_RECHARGE_COUNT("wallet_recharge_count"),
     /**
      * 钱包充值时间限制
      */
     WALLET_RECHARGE_END("wallet_recharge_end"),
+    /**
+     * 钱包充值苹果开关
+     */
+    WALLET_RECHARGE_IOS("wallet_recharge_ios"),
+    /**
+     * 钱包充值时间限制
+     */
+    WALLET_RECHARGE_START("wallet_recharge_start"),
+    /**
+     * 钱包充值单日总笔数
+     */
+    WALLET_RECHARGE_TOTAL("wallet_recharge_total"),
     ;
 
     @EnumValue

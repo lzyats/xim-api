@@ -3,8 +3,10 @@ package com.platform.modules.chat.domain;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.platform.common.enums.YesOrNoEnum;
 import com.platform.common.web.domain.BaseEntity;
+import com.platform.common.web.domain.JsonDateDeserializer;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -45,5 +47,10 @@ public class ChatNotice extends BaseEntity {
      * 发布时间
      */
     private Date createTime;
+
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    private Date updateTime;
+
+    private int isindex;
 
 }

@@ -7,6 +7,7 @@ import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.platform.common.constant.AppConstants;
 import com.platform.common.enums.YesOrNoEnum;
+import com.platform.common.redis.RedisUtils;
 import com.platform.common.shiro.ShiroUserVo;
 import com.platform.common.shiro.ShiroUtils;
 import com.platform.modules.auth.service.TokenService;
@@ -61,6 +62,9 @@ public class FriendMomentsServiceImpl extends BaseServiceImpl<FriendMoments> imp
 
     @Resource
     private TokenService tokenService;
+
+    @Resource
+    private RedisUtils redisUtils;
 
     @Autowired
     private QuartzJobService quartzJobService;
@@ -264,6 +268,8 @@ public class FriendMomentsServiceImpl extends BaseServiceImpl<FriendMoments> imp
             fm.setMomentId(momentId);
             fm.setType(mediasV2.get(i).getType());
             fm.setUrl(mediasV2.get(i).getUrl());
+            fm.setWidth(mediasV2.get(i).getWidth());
+            fm.setHeight(mediasV2.get(i).getHeight());
             fm.setThumbnail(mediasV2.get(i).getThumbnail());
             friendMedias.add(fm);
         }
@@ -307,7 +313,7 @@ public class FriendMomentsServiceImpl extends BaseServiceImpl<FriendMoments> imp
      */
     @Transactional
     @Override
-    public void deleteMoment(Long momentId) {
+    public void deleteMoment(Long momentId,Long msgId) {
         // 参数校验
         if (momentId == null) {
             throw new IllegalArgumentException("朋友圈ID不能为空");
@@ -322,6 +328,9 @@ public class FriendMomentsServiceImpl extends BaseServiceImpl<FriendMoments> imp
 
         // 执行删除操作（根据moment_id和user_id双重条件）
         int deleteCount = friendMomentsDao.deleteByMomentIdAndUserId(momentId, currentUserId);
+        // 删除缓存中的消息
+        String redisKey = AppConstants.REDIS_PUSH_MOMENT + msgId;
+        redisUtils.delete(redisKey);
         //发送广播通知所有人删除本地消息
         this.getmoments(momentId,null,1);
         // 校验删除结果
@@ -379,6 +388,8 @@ public class FriendMomentsServiceImpl extends BaseServiceImpl<FriendMoments> imp
                 PushMedias pushMedias=new PushMedias();
                 pushMedias.setType(mediasVo01s.get(i).getType());
                 pushMedias.setUrl(mediasVo01s.get(i).getUrl());
+                pushMedias.setWidth(mediasVo01s.get(i).getWidth());
+                pushMedias.setHeight(mediasVo01s.get(i).getHeight());
                 pushMedias.setThumbnail(mediasVo01s.get(i).getThumbnail());
                 pushMediasList.add(pushMedias);
             }
@@ -388,6 +399,8 @@ public class FriendMomentsServiceImpl extends BaseServiceImpl<FriendMoments> imp
                 PushMedias pushMedias=new PushMedias();
                 pushMedias.setType(mediasVo02.get(i).getType());
                 pushMedias.setUrl(mediasVo02.get(i).getUrl());
+                pushMedias.setWidth(mediasVo02.get(i).getWidth());
+                pushMedias.setHeight(mediasVo02.get(i).getHeight());
                 pushMedias.setThumbnail(mediasVo02.get(i).getThumbnail());
                 pushMediasList.add(pushMedias);
             }
