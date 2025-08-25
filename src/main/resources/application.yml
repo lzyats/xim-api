@@ -47,8 +47,9 @@ filter:
       - /wallet/recharge/notifyAli
       - /wallet/recharge/notifyWx
       - /common/upgrade
+      - /common/getHtml/*
       - /error/**
-      - /test/**
+      - /test/*
   # 禁用拦截
   banned:
     # 过滤请求
