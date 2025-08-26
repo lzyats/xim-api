@@ -67,6 +67,7 @@ public class ChatPortraitServiceImpl extends BaseServiceImpl<ChatPortrait> imple
 
     @Override
     public List<String> queryPortraitList(ChatTalkEnum chatType) {
+        redisKey=redisKey+":"+chatType.getType();
         // 1. 先检查缓存是否存在
         if (redisJsonUtil.hasKey(redisKey)) {
             // 2. 缓存存在：调用RedisJsonUtil的range方法获取整个List（start=0，end=-1表示全部元素）

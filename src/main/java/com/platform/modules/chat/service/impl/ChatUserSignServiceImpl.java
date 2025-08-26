@@ -9,8 +9,10 @@ import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.github.pagehelper.PageInfo;
 import com.platform.common.constant.AppConstants;
 import com.platform.common.exception.BaseException;
+import com.platform.common.redis.RedisJsonUtil;
 import com.platform.common.redis.RedisUtils;
 import com.platform.common.shiro.ShiroUtils;
+import com.platform.modules.chat.vo.ChatSignVo01;
 import com.platform.modules.chat.vo.MineSignVo01;
 import com.platform.modules.common.service.CommonService;
 import com.platform.modules.wallet.domain.WalletTrade;
@@ -44,11 +46,10 @@ import java.math.BigDecimal;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+
+import java.util.concurrent.TimeUnit;
+import com.alibaba.fastjson.TypeReference;
 
 /**
  * <p>
@@ -67,6 +68,9 @@ public class ChatUserSignServiceImpl extends BaseServiceImpl<ChatUserSign> imple
     @Autowired
     private RedisUtils redisUtils;
 
+    @Autowired
+    private RedisJsonUtil redisJsonUtil;
+
     @Resource
     private WalletTradeService  walletTradeService;
 
@@ -83,6 +87,12 @@ public class ChatUserSignServiceImpl extends BaseServiceImpl<ChatUserSign> imple
         return dataList;
     }
 
+
+    public List<ChatSignVo01> queryList1(QueryWrapper<ChatSignVo01> t) {
+        List<ChatSignVo01> dataList = chatUserSignDao.queryList1(t);
+        return dataList;
+    }
+
     @Override
     public PageInfo getSignList() {
         // 查询数据
@@ -93,7 +103,7 @@ public class ChatUserSignServiceImpl extends BaseServiceImpl<ChatUserSign> imple
         wrapper.ge(ChatUserSign.COLUMN_CREATE_TIME, DateUtil.offsetMonth(DateUtil.date(), -3));
 
         List<ChatUserSign> dataList = this.queryList(wrapper);
-        //logger.error("查询签到数据: {}", dataList);
+        logger.error("查询签到数据: {}", dataList);
         List<MineSignVo01> dictList = dataList.stream().collect(ArrayList::new, (x, y) -> {
             x.add(new MineSignVo01(y));
         }, ArrayList::addAll);
@@ -102,54 +112,54 @@ public class ChatUserSignServiceImpl extends BaseServiceImpl<ChatUserSign> imple
 
     /**
      * * 查询指定条件下的reward_amount总和和sign_date集合
-         * @return 包含总和和日期集合的Map
-         */
+     * @return 包含总和和日期集合的
+     */
     @Override
     public Map<String, Object> getSignStats() {
+        Long userId = ShiroUtils.getUserId();
+        String redisKey = AppConstants.REDIS_MINE_SIGN +"li"+ userId;
 
-        // 创建查询条件构造器
-        QueryWrapper<ChatUserSign> wrapper = new QueryWrapper<>();
-        wrapper.eq(ChatUserSign.COLUMN_USER_ID, ShiroUtils.getUserId());
+        // 1. 尝试从缓存获取数据
+        Map<String, Object> cacheResult = redisJsonUtil.get(redisKey, new TypeReference<Map<String, Object>>() {});
+        if (cacheResult != null) {
+            //logger.info("从缓存获取用户[{}]的签到统计数据 {}", userId,cacheResult);
+            return cacheResult;
+        }
+
+        // 2. 缓存未命中，查询数据库
+        QueryWrapper<ChatSignVo01> wrapper = new QueryWrapper<>();
+        wrapper.eq(ChatUserSign.COLUMN_USER_ID, userId);
         wrapper.eq(ChatUserSign.COLUMN_SIGN_TYPE, 1);
         wrapper.eq(ChatUserSign.COLUMN_IS_VALID, 1);
 
-        double totalReward=0.00;
-        List<String> signDates=new ArrayList<>();
-        // 查询符合条件的所有记录
-        List<ChatUserSign> signList = this.queryList(wrapper);
+        double totalReward = 0.00;
+        List<ChatSignVo01> signList = this.queryList1(wrapper);
         //logger.error("查询签到数据: {}", signList);
+
         if (!signList.isEmpty()) {
             // 计算奖励总和（使用Java 8 Stream API）
             totalReward = signList.stream()
-                    .map(ChatUserSign::getRewardAmount)
+                    .map(ChatSignVo01::getRewardAmount)
                     .filter(amount -> amount != null)
                     .mapToDouble(Double::doubleValue)
                     .sum();
-
-            // 定义东8区时区和日期格式化器（线程安全）
-            ZoneId asiaShanghai = ZoneId.of("Asia/Shanghai");
-            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.CHINA)
-                    .withZone(asiaShanghai);
-
-            // 格式化日期为字符串（使用Java 8时间API）
-            signDates = signList.stream()
-                    .map(ChatUserSign::getSignDate)
-                    .filter(date -> date != null)
-                    // 将Date转换为Instant，再转换为东8区的日期
-                    .map(date -> date.toInstant().atZone(asiaShanghai))
-                    // 使用预定义的格式化器进行格式化
-                    .map(dateFormatter::format)
-                    .collect(Collectors.toList());
         }
+        // 计算连续签到天数
+        int continuousDays = getContinuousSignDays(userId);
 
-
-
+        // 计算签到奖励
+        double reward = calculateReward(continuousDays + 1);
         Map<String, Object> result = new HashMap<>();
-        result.put("totalReward", totalReward);  // 添加键值对
-        result.put("signDates", signDates);
+        result.put("totalReward", totalReward);
+        result.put("reward", reward);
+        result.put("signDates", signList);
 
+        // 3. 将查询结果存入缓存，设置过期时间为24小时（可根据业务需求调整）
+        redisJsonUtil.set(redisKey, result, 300L, TimeUnit.SECONDS);
+        //logger.info("将用户[{}]的签到统计数据 {} 存入缓存，过期时间300秒", userId,result);
         return result;
     }
+
 
     /**
      * 签到
@@ -190,12 +200,15 @@ public class ChatUserSignServiceImpl extends BaseServiceImpl<ChatUserSign> imple
                 // 生成纯净的JSON对象字符串（无额外引号）
                 String jsonStr = "1";
                 logger.debug("写入Redis的JSON: {}", jsonStr); // 调试：确认格式正确
-                redisUtils.set(redisKey, jsonStr, 300);
+                redisUtils.set(redisKey, jsonStr, 12,TimeUnit.HOURS);
             } catch (Exception e) {
                 logger.error("写入Redis缓存失败，key: {}", redisKey, e);
             }
             throw new BaseException("你今天已经签过到了");
         }
+        //清除查询缓存
+        String redisKeylist = AppConstants.REDIS_MINE_SIGN +"li"+ userId;
+        redisJsonUtil.delete(redisKeylist);
         // 2. 计算连续签到天数
         int continuousDays = getContinuousSignDays(userId);
 
@@ -246,7 +259,7 @@ public class ChatUserSignServiceImpl extends BaseServiceImpl<ChatUserSign> imple
      * 获取用户连续签到天数
      */
     private int getContinuousSignDays(Long userId) {
-        // 查询用户有效的签到记录，按日期倒序排列
+        // 查询用户有效签到记录，按日期倒序排列
         QueryWrapper<ChatUserSign> wrapper = new QueryWrapper<>();
         wrapper.eq(ChatUserSign.COLUMN_USER_ID, userId)
                 .eq("is_valid", true)
@@ -286,18 +299,21 @@ public class ChatUserSignServiceImpl extends BaseServiceImpl<ChatUserSign> imple
      */
     private double calculateReward(int continuousDays) {
         // 奖励规则可根据实际业务调整
-        if (continuousDays >= 30) {
-            return 5.00;
-        } else if (continuousDays >= 15) {
-            //return new double("3.00");
-        } else if (continuousDays >= 7) {
-            //return new double("1.00");
+        if (continuousDays >= 7) {
+            return 0.35;
+        } else if (continuousDays >= 6) {
+            return 0.25;
+        } else if (continuousDays >= 5) {
+            return 0.2;
+        } else if (continuousDays >= 4) {
+            return 0.15;
         } else if (continuousDays >= 3) {
-            //return new double("0.50");
+            return 0.1;
+        } else if (continuousDays >= 2) {
+            return 0.05;
         } else {
             return 0.00;
         }
-        return 0.00;
     }
 
 }

@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 我的
@@ -311,7 +312,9 @@ public class MineController extends BaseController {
     @VersionRepeat(VersionEnum.V1_0_0)
     @GetMapping("/getSignInfo")
     public AjaxResult getSignInfo() {
-        return AjaxResult.success(chatUserSignService.getSignStats());
+        Map<String, Object> data=chatUserSignService.getSignStats();
+        //log.info("<UNK>{}",data);
+        return AjaxResult.success(data);
     }
 
     /**

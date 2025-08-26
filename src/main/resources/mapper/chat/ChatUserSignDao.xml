@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.platform.modules.chat.dao.ChatUserSignDao">
+    <!-- 在当前mapper中添加resultMap -->
+    <resultMap id="ChatSignVo01Map" type="com.platform.modules.chat.vo.ChatSignVo01">
+        <result column="sign_date" property="signDate"/> <!-- 字段名 -> 属性名 -->
+        <result column="reward_amount" property="rewardAmount"/>
+    </resultMap>
 
     <!-- 字段集 -->
     <sql id="baseSql">
@@ -52,6 +57,11 @@
             </if>
             -->
         </where>
+    </select>
+    <!-- 新增查询：仅返回sign_date和reward_amount -->
+    <select id="queryList1" resultType="com.platform.modules.chat.vo.ChatSignVo01">
+        select sign_date, reward_amount from chat_user_sign
+        ${ew.customSqlSegment}
     </select>
 
 </mapper>

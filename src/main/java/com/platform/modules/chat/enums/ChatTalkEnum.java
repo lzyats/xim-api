@@ -22,6 +22,10 @@ public enum ChatTalkEnum {
      * 服务号
      */
     ROBOT("3", "服务号", "robot"),
+    /**
+     * 朋友圈
+     */
+    MOMENT("4", "朋友圈", "moment"),
     ;
 
     @EnumValue
