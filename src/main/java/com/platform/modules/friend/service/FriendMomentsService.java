@@ -30,7 +30,7 @@ public interface FriendMomentsService extends BaseService<FriendMoments> {
      /**
       * 获取指定ID的朋友圈信息列表
       */
-     PageInfo<MomentVo01> getlistbyid(Long userId);
+     PageInfo<MomentVo01> getlistbyid(Long userId,Integer pageNum);
 
      /**
       * 新增朋友圈信息

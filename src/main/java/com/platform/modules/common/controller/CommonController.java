@@ -71,9 +71,27 @@ public class CommonController extends BaseController {
      * 获取上传凭证
      */
     @VersionRepeat(VersionEnum.V1_0_0)
+    @RequestMapping(value = "/getUploadToken")
+    public AjaxResult getUploadToken() {
+        return AjaxResult.success(fileService.getUploadToken(""));
+    }
+
+    /**
+     * 获取上传凭证
+     */
+    @VersionRepeat(VersionEnum.V1_0_0)
     @RequestMapping(value = "/getUploadToken/{fileExt}")
     public AjaxResult getUploadToken(@PathVariable String fileExt) {
         return AjaxResult.success(fileService.getUploadToken(fileExt));
+    }
+
+    /**
+     * 获取上传凭证
+     */
+    @VersionRepeat(VersionEnum.V1_0_0)
+    @RequestMapping(value = "/getUploadTokenu/{fileExt}")
+    public AjaxResult getUploadTokenu(@PathVariable String fileExt) {
+        return AjaxResult.success(fileService.getUploadTokenu(fileExt));
     }
 
     /**
@@ -86,15 +104,6 @@ public class CommonController extends BaseController {
             throw new BaseException("上传文件不能为空");
         }
         return AjaxResult.success(fileService.upload(file));
-    }
-
-    /**
-     * 获取上传凭证
-     */
-    @VersionRepeat(VersionEnum.V1_0_0)
-    @RequestMapping(value = "/getUploadTokenu/{fileExt}")
-    public AjaxResult getUploadTokenu(@PathVariable String fileExt) {
-        return AjaxResult.success(fileService.getUploadTokenu(fileExt));
     }
 
     /**

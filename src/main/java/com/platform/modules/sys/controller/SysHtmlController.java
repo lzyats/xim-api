@@ -5,6 +5,7 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import com.platform.common.aspectj.AppLog;
+import com.platform.common.config.PlatformConfig;
 import com.platform.common.enums.LogTypeEnum;
 import com.platform.common.web.page.TableDataInfo;
 import com.platform.common.web.domain.AjaxResult;
@@ -36,7 +37,6 @@ public class SysHtmlController extends BaseController {
     public TableDataInfo list() {
         startPage();
         List<SysHtml> list = sysHtmlService.queryList();
-
         return getDataTable(list);
     }
 
@@ -46,7 +46,7 @@ public class SysHtmlController extends BaseController {
     @GetMapping("/info/{roulekey}")
     public AjaxResult getInfo(@PathVariable String roulekey) {
         SysHtml data=sysHtmlService.getInfo(roulekey);
-        return AjaxResult.success(data);
+        return AjaxResult.success(data, PlatformConfig.SECRET);
     }
 }
 

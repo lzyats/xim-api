@@ -91,7 +91,7 @@
     </select>
 
     <select id="getMediasByMomentId" resultType="com.platform.modules.friend.vo.MediasVo01">
-        SELECT type, url, thumbnail, width ,height
+        SELECT type, url, thumbnail, width ,height ,media_id
         FROM friend_medias
         WHERE moment_id = #{momentId}
     </select>

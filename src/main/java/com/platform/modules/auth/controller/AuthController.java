@@ -4,6 +4,7 @@ import cn.hutool.core.lang.Dict;
 import cn.hutool.core.lang.Validator;
 import com.platform.common.aspectj.SubmitRepeat;
 import com.platform.common.aspectj.VersionRepeat;
+import com.platform.common.config.PlatformConfig;
 import com.platform.common.exception.BaseException;
 import com.platform.common.validation.ValidateGroup;
 import com.platform.common.validation.ValidationUtil;
@@ -74,7 +75,7 @@ public class AuthController extends BaseController {
                 throw new BaseException("短信类型不正确");
         }
         Dict data = chatUserService.sendCode(phone, email, safestr,messageType);
-        return AjaxResult.success(data);
+        return AjaxResult.success(data, PlatformConfig.SECRET);
     }
 
     /**

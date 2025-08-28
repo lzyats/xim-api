@@ -253,5 +253,6 @@ public class AppConstants {
      */
     public static final String REDIS_COMMON_SYS= "common:sys";
     public static final String REDIS_COMMON_PORTRAIT= "common:portrait";
+    public static final String REDIS_COMMON_MOMENT= "common:moment:";
 
 }

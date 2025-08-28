@@ -6,6 +6,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import com.platform.common.aspectj.AppLog;
 import com.platform.common.aspectj.VersionRepeat;
+import com.platform.common.config.PlatformConfig;
 import com.platform.common.enums.LogTypeEnum;
 import com.platform.common.enums.YesOrNoEnum;
 import com.platform.common.exception.BaseException;
@@ -101,13 +102,13 @@ public class FriendMomentsController extends BaseController {
         // 开启分页
         PageHelper.startPage(pageNum, pageSize);
         // 执行查询
-        PageInfo<MomentVo01> pageInfo = friendMomentsService.getlistbyid(userId);  // 直接获取分页结果
+        PageInfo<MomentVo01> pageInfo = friendMomentsService.getlistbyid(userId,pageNum);  // 直接获取分页结果
 
 
 
         //logger.info("返回数:{}", pageInfo);
 
-        return AjaxResult.success(pageInfo);
+        return AjaxResult.success(pageInfo, PlatformConfig.SECRET);
     }
 
     /**
@@ -190,7 +191,7 @@ public class FriendMomentsController extends BaseController {
     @GetMapping("/pullMsg")
     public AjaxResult pullMsg() {
         List<JSONObject> dataList = friendMomentsService.pullMsg();
-        return AjaxResult.success(dataList);
+        return AjaxResult.success(dataList, PlatformConfig.SECRET);
     }
 
 }

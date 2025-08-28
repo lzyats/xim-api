@@ -7,6 +7,7 @@ import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.platform.common.constant.AppConstants;
 import com.platform.common.enums.YesOrNoEnum;
+import com.platform.common.redis.RedisJsonUtil;
 import com.platform.common.redis.RedisUtils;
 import com.platform.common.shiro.ShiroUserVo;
 import com.platform.common.shiro.ShiroUtils;
@@ -25,6 +26,7 @@ import com.platform.modules.push.dto.PushMoment;
 import com.platform.modules.push.enums.PushMomentEnum;
 import com.platform.modules.push.service.PushService;
 import com.platform.modules.quartz.service.QuartzJobService;
+import com.platform.modules.sys.domain.SysHtml;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,6 +36,8 @@ import java.util.*;
 import com.platform.common.web.service.impl.BaseServiceImpl;
 import org.springframework.transaction.annotation.Transactional;
 import java.sql.Timestamp;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
@@ -67,7 +71,13 @@ public class FriendMomentsServiceImpl extends BaseServiceImpl<FriendMoments> imp
     private RedisUtils redisUtils;
 
     @Autowired
+    private RedisJsonUtil redisJsonUtil;
+
+    @Autowired
     private QuartzJobService quartzJobService;
+
+    Long CACHE_TIMEOUT=300L;
+    TimeUnit CACHE_TIME_UNIT=TimeUnit.SECONDS;
 
     @Autowired
     public void setBaseDao() {
@@ -197,57 +207,71 @@ public class FriendMomentsServiceImpl extends BaseServiceImpl<FriendMoments> imp
 
     @Transactional
     @Override
-    public PageInfo<MomentVo01> getlistbyid(Long userId) {
+    public PageInfo<MomentVo01> getlistbyid(Long userId, Integer pageNum) {
         Long current = ShiroUtils.getUserId();
-        // 1. 执行DAO查询（此时若已通过PageHelper.startPage开启分页，返回的是Page类型，含分页元数据）
-        List<Map<String, Object>> allMoments = friendMomentsDao.getMomentsById(userId,current);
-        //logger.info("原始数据: {}",allMoments);
-        // 强转为Page，获取分页信息（总条数、页码等）
+        String redisKey = AppConstants.REDIS_COMMON_MOMENT + userId + ":" + current + ":" + pageNum;
+
+        // 1. 从Redis缓存查询（直接指定返回类型为PageInfo<MomentVo01>）
+        PageInfo<MomentVo01> cachedPage = (PageInfo<MomentVo01>) redisJsonUtil.get(redisKey, PageInfo.class);
+
+        if (cachedPage != null) {
+            log.info("从缓存获取动态列表, key: {}", redisKey);
+            return cachedPage;
+        }
+
+        // 2. 缓存不存在，执行数据库查询
+        List<Map<String, Object>> allMoments = friendMomentsDao.getMomentsById(userId, current);
+        log.info("从数据库查询动态列表, key: {}", redisKey);
+
         Page<Map<String, Object>> momentsPage = (Page<Map<String, Object>>) allMoments;
-        //logger.info("原始查询分页数据: 总条数={}, 当前页={}, 页大小={}",
-         //       momentsPage.getTotal(), momentsPage.getPageNum(), momentsPage.getPageSize());
 
-
-        // 2. 转换为MomentVo01列表（保持原有逻辑）
+        // 3. 转换为MomentVo01列表（保持原有逻辑）
         List<MomentVo01> momentVoList = new ArrayList<>();
         for (Map<String, Object> moment : allMoments) {
             MomentVo01 m1 = new MomentVo01();
-
-            // 基本字段赋值
             m1.setMomentId((Long) moment.get("moment_id"));
             m1.setUserId((Long) moment.get("user_id"));
             m1.setPortrait((String) moment.get("portrait"));
             m1.setNickname((String) moment.get("nickname"));
             m1.setContent((String) moment.get("content"));
             m1.setLocation((String) moment.get("location"));
-            // 处理时间差（保持原有逻辑）
-            Timestamp  createTimeStry = (Timestamp ) moment.get("create_time");
-            Date createTimeStr = createTimeStry;
-            m1.setCreateTime(createTimeStr);
-            // 处理图片
+
+            Timestamp createTimeStry = (Timestamp) moment.get("create_time");
+            m1.setCreateTime(createTimeStry);
+
             Long momentId = (Long) moment.get("moment_id");
             m1.setImages(friendMomentsDao.getMediasByMomentId(momentId));
+
             momentVoList.add(m1);
         }
 
-
-        // 3. 构建包含分页信息的Page对象（绑定VO列表和原分页元数据）
+        // 4. 构建分页结果
         Page<MomentVo01> resultPage = new Page<>(
-                momentsPage.getPageNum(),  // 当前页码
-                momentsPage.getPageSize()  // 页大小
+                momentsPage.getPageNum(),
+                momentsPage.getPageSize()
         );
-        resultPage.setTotal(momentsPage.getTotal());  // 总条数（关键：保证分页准确性）
-        resultPage.addAll(momentVoList);  // 当前页的VO数据
+        resultPage.setTotal(momentsPage.getTotal());
+        resultPage.addAll(momentVoList);
 
+        PageInfo<MomentVo01> pageInfo = new PageInfo<>(resultPage);
 
-        // 4. 用PageInfo封装并返回（包含完整分页信息）
-        return new PageInfo<>(resultPage);
+        // 5. 存入Redis缓存（直接存储PageInfo对象，利用工具类自动处理Hash结构）
+        try {
+            redisJsonUtil.set(redisKey, pageInfo, CACHE_TIMEOUT, CACHE_TIME_UNIT);
+            log.info("动态列表存入缓存, key: {}", redisKey);
+        } catch (Exception e) {
+            log.error("缓存动态列表失败, key: {}", redisKey, e);
+            // 缓存失败不影响业务
+        }
+
+        return pageInfo;
     }
 
     @Transactional
     @Override
     public void admomnet(MomentVo02 momentVo02){
         //log.info("接收信息：{}",momentVo02);
+        Long userId = ShiroUtils.getUserId();
         //添加朋友圈信息
         FriendMoments friendMoments=new FriendMoments()
                 .setUserId(momentVo02.getUserId())
@@ -276,6 +300,9 @@ public class FriendMomentsServiceImpl extends BaseServiceImpl<FriendMoments> imp
         //批量添加数据
         friendMediasService.batchAdd(friendMedias,mediasV2.size());
         this.getmoments(momentId,mediasV2);
+        //清除缓存
+        String redisKey = AppConstants.REDIS_COMMON_MOMENT + userId + ":*";
+        redisJsonUtil.delete(redisKey);
     };
 
     /**
@@ -323,8 +350,6 @@ public class FriendMomentsServiceImpl extends BaseServiceImpl<FriendMoments> imp
         if (currentUserId == null) {
             throw new IllegalStateException("当前用户未登录");
         }
-
-
 
         // 执行删除操作（根据moment_id和user_id双重条件）
         int deleteCount = friendMomentsDao.deleteByMomentIdAndUserId(momentId, currentUserId);
