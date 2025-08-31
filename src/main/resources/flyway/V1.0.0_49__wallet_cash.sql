@@ -1,1 +1,0 @@
-UPDATE wallet_cash SET reason = NULL WHERE reason = '';
