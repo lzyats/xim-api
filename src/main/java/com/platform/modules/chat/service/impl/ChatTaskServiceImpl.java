@@ -110,13 +110,12 @@ public class ChatTaskServiceImpl implements ChatTaskService {
 
     @Override
     public void dellogs() {
-        log.info("删除三天以前的定时任务记录");
         QueryWrapper<QuartzLog> wrapper = new QueryWrapper<>();
-        wrapper.eq("status", "Y");
+        //wrapper.eq("status", "Y");
         // 改为：create_time 小于等于三天前的日期（即三天以前的数据）
         wrapper.le("create_time", DateUtil.offsetDay(DateUtil.date(), -3));
         quartzLogDao.dellogs(wrapper);
-        log.info("删除三天以前的定时任务记录");
+        //log.info("删除三天以前的定时任务记录");
     }
 
     @Transactional

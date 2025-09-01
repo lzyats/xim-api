@@ -1164,6 +1164,7 @@ INSERT INTO `quartz_job` VALUES (1793574396027799002, '用户日活', 'chatTaskS
 INSERT INTO `quartz_job` VALUES (1793574396027799003, '用户解封', 'chatTaskService.banned()', '0 0/10 * * * ? *', 'Y');
 INSERT INTO `quartz_job` VALUES (1793574396027799004, '群组降级', 'chatTaskService.level()', '0 0 5 * * ? *', 'Y');
 INSERT INTO `quartz_job` VALUES (1793574396027799005, '钱包补偿', 'walletReceiveService.task()', '0 0/5 * * * ? *', 'Y');
+INSERT INTO `quartz_job` VALUES (1793574396027799006, '删除日志', 'chatTaskService.dellogs()', '0 30 4 * * ? *', 'Y');
 
 -- ----------------------------
 -- Table structure for quartz_log
