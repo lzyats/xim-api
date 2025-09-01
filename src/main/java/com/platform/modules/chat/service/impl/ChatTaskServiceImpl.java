@@ -3,10 +3,13 @@ package com.platform.modules.chat.service.impl;
 import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.platform.common.enums.YesOrNoEnum;
+import com.platform.common.shiro.ShiroUtils;
 import com.platform.modules.chat.domain.*;
 import com.platform.modules.chat.enums.ChatConfigEnum;
 import com.platform.modules.chat.service.*;
 import com.platform.modules.common.service.HookService;
+import com.platform.modules.quartz.dao.QuartzLogDao;
+import com.platform.modules.quartz.domain.QuartzLog;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,6 +52,10 @@ public class ChatTaskServiceImpl implements ChatTaskService {
 
     @Resource
     private HookService hookService;
+
+    @Resource
+    private QuartzLogDao quartzLogDao;
+
 
     @Resource
     private ChatTaskService chatTaskService;
@@ -99,6 +106,17 @@ public class ChatTaskServiceImpl implements ChatTaskService {
                 log.error("定时任务[用户解封]执行失败", e);
             }
         });
+    }
+
+    @Override
+    public void dellogs() {
+        log.info("删除三天以前的定时任务记录");
+        QueryWrapper<QuartzLog> wrapper = new QueryWrapper<>();
+        wrapper.eq("status", "Y");
+        // 改为：create_time 小于等于三天前的日期（即三天以前的数据）
+        wrapper.le("create_time", DateUtil.offsetDay(DateUtil.date(), -3));
+        quartzLogDao.dellogs(wrapper);
+        log.info("删除三天以前的定时任务记录");
     }
 
     @Transactional

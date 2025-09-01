@@ -36,6 +36,7 @@ import java.util.TimeZone;
 @ComponentScan(basePackages = {
         "cn.hutool.extra.spring",
         "com.platform.modules.quartz.service",
+        "com.platform.common.upload.service"
 })
 public class ApplicationConfig {
 

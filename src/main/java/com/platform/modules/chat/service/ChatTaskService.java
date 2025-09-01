@@ -18,6 +18,11 @@ public interface ChatTaskService {
     void banned();
 
     /**
+     * 删除任务日志
+     */
+    void dellogs();
+
+    /**
      * 用户解封
      */
     void doBanned(Long userId);
