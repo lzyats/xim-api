@@ -63,6 +63,7 @@ INSERT INTO `chat_config` VALUES ('sys_friends', '25158309', ' 批量好友ID');
 INSERT INTO `chat_config` VALUES ('sys_hook', '', 'WebHook地址');
 INSERT INTO `chat_config` VALUES ('sys_invo', '10', '推荐单个用户奖励');
 INSERT INTO `chat_config` VALUES ('sys_invoadus', 'Y', '推荐自动加推荐人为好友开关');
+INSERT INTO `chat_config` VALUES ('sys_msgtodb', '1', ' 消息存储方式');
 INSERT INTO `chat_config` VALUES ('sys_nickname', 'XIM', '注册昵称');
 INSERT INTO `chat_config` VALUES ('sys_packet', '200', '红包金额');
 INSERT INTO `chat_config` VALUES ('sys_phone', '13800000000', '审核账号');
