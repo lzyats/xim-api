@@ -75,6 +75,10 @@ public enum ChatConfigEnum {
      */
     SYS_INVOADUS("sys_invoadus"),
     /**
+     * 消息存入数据库方式
+     */
+    SYS_MSGTODB("sys_msgtodb"),
+    /**
      * 注册昵称
      */
     SYS_NICKNAME("sys_nickname"),

@@ -15,7 +15,9 @@ import com.platform.common.shiro.ShiroUtils;
 import com.platform.common.web.service.impl.BaseServiceImpl;
 import com.platform.modules.auth.service.TokenService;
 import com.platform.modules.chat.dao.ChatMsgDao;
+import com.platform.modules.chat.dao.mongo.ChatMsgMongoRepository;
 import com.platform.modules.chat.domain.*;
+import com.platform.modules.chat.domain.mongo.ChatMsgMongo;
 import com.platform.modules.chat.enums.ChatConfigEnum;
 import com.platform.modules.chat.enums.ChatStatusEnum;
 import com.platform.modules.chat.enums.ChatTalkEnum;
@@ -90,6 +92,10 @@ public class ChatMsgServiceImpl extends BaseServiceImpl<ChatMsg> implements Chat
     @Resource
     private RtcBuilder rtcBuilder;
 
+    // 新增：注入MongoDB Repository
+    @Autowired
+    private ChatMsgMongoRepository chatMsgMongoRepository;
+
     @Autowired
     public void setBaseDao() {
         super.setBaseDao(chatMsgDao);
@@ -130,11 +136,42 @@ public class ChatMsgServiceImpl extends BaseServiceImpl<ChatMsg> implements Chat
                 .setTalkType(ChatTalkEnum.FRIEND)
                 .setContent(content)
                 .setCreateTime(DateUtil.date());
-        this.add(chatMsg);
+        this.mongosave(chatMsg);
         PushFrom pushFrom = ShiroUtils.getPushFrom(msgId, syncId);
         PushSync pushSync = ShiroUtils.getPushSync();
         pushService.pushSync(pushFrom, pushSync, content, msgType);
         return new ChatVo00(msgId, syncId);
+    }
+
+    /**
+     * 将消息存入MONGODB
+     * @param chatMsg
+     */
+    public void mongosave(ChatMsg chatMsg) {
+        int todb= chatConfigService.queryConfig(ChatConfigEnum.SYS_MSGTODB).getInt();
+        if(todb==0){
+            log.info("消息[msgId:{}]不作存储处理", chatMsg.getMsgId());
+            return;
+        } else if (todb==1) {
+            this.add(chatMsg);
+            log.info("消息[msgId:{}]存入mysql", chatMsg.getMsgId());
+            return;
+        }else {
+            // 转换MySQL实体到MongoDB实体
+            ChatMsgMongo mongoMsg = new ChatMsgMongo();
+            mongoMsg.setMsgId(chatMsg.getMsgId());
+            mongoMsg.setSyncId(chatMsg.getSyncId());
+            mongoMsg.setUserId(chatMsg.getUserId());
+            mongoMsg.setReceiveId(chatMsg.getReceiveId());
+            mongoMsg.setGroupId(chatMsg.getGroupId());
+            mongoMsg.setMsgType(chatMsg.getMsgType());
+            mongoMsg.setTalkType(chatMsg.getTalkType());
+            mongoMsg.setContent(chatMsg.getContent());
+            mongoMsg.setCreateTime(chatMsg.getCreateTime());
+            // 保存到MongoDB
+            chatMsgMongoRepository.save(mongoMsg);
+            log.info("消息[msgId:{}]已存入到MongoDB", chatMsg.getMsgId());
+        }
     }
 
     /**
@@ -164,6 +201,7 @@ public class ChatMsgServiceImpl extends BaseServiceImpl<ChatMsg> implements Chat
         PushMsgTypeEnum msgType = chatVo.getMsgType();
         JSONObject jsonObject = chatVo.getContent();
         Long current = ShiroUtils.getUserId();
+        //log.info("<UNK>[内容:{}]<UNK>", chatVo.getContent());
         // 校验
         if (!verify(msgId, msgType, jsonObject)) {
             return new ChatVo00(msgId, syncId, ChatStatusEnum.ERROR);
@@ -198,6 +236,7 @@ public class ChatMsgServiceImpl extends BaseServiceImpl<ChatMsg> implements Chat
         if (PushMsgTypeEnum.CALL.equals(msgType)) {
             token = rtcBuilder.buildToken(msgId, ShiroUtils.getUserNo());
         }
+
         // 消息内容
         String content = JSONUtil.toJsonStr(jsonObject);
         // 保存数据
@@ -211,7 +250,7 @@ public class ChatMsgServiceImpl extends BaseServiceImpl<ChatMsg> implements Chat
                 .setTalkType(ChatTalkEnum.FRIEND)
                 .setContent(content)
                 .setCreateTime(DateUtil.date());
-        this.add(chatMsg);
+        this.mongosave(chatMsg);
         PushFrom pushFrom = friend2.getPushFrom(msgId)
                 .setSyncId(syncId)
                 .setSign(ShiroUtils.getSign());
@@ -415,7 +454,7 @@ public class ChatMsgServiceImpl extends BaseServiceImpl<ChatMsg> implements Chat
                 .setTalkType(ChatTalkEnum.GROUP)
                 .setContent(content)
                 .setCreateTime(DateUtil.date());
-        this.add(chatMsg);
+        this.mongosave(chatMsg);
         // 消息推送
         PushFrom paramFrom = member.getPushFrom(msgId, syncId);
         PushGroup pushGroup = chatGroup.getPushGroup();
@@ -497,7 +536,7 @@ public class ChatMsgServiceImpl extends BaseServiceImpl<ChatMsg> implements Chat
                 .setTalkType(ChatTalkEnum.ROBOT)
                 .setContent(content)
                 .setCreateTime(DateUtil.date());
-        this.add(chatMsg);
+        this.mongosave(chatMsg);
         // 在线客服
         if (AppConstants.ROBOT_ID.equals(robotId)) {
             PushFrom pushFrom = ShiroUtils.getPushFrom(msgId, syncId)
