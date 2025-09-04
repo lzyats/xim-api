@@ -51,7 +51,7 @@ INSERT INTO `chat_config` VALUES ('apply_friend', '50', '申请好友单日次�
 INSERT INTO `chat_config` VALUES ('apply_group', '30', '申请群组单日次数');
 INSERT INTO `chat_config` VALUES ('group_level_count', '2000', '群组成员默认数量');
 INSERT INTO `chat_config` VALUES ('group_name_search', 'N', '群组名称搜索开关');
-INSERT INTO `chat_config` VALUES ('notice_content', '<p>请不要发布任何反动、色情信息，否则系统将查封账号，并将相关信息上报公安机关。</p><p>近期诈骗犯罪案件时有发生，为防止您经济蒙受损失，收到以熟人名义要求转账、汇款时，务必提高警惕以防上当受骗！</p><p class=\"ql-align-center\"><img src=\"http://lxim.oss-cn-shenzhen.aliyuncs.com/alpaca/202508/23/12/68a93e1046d801752d24aef7.png\"></p>', '系统通告');
+INSERT INTO `chat_config` VALUES ('notice_content', '<p>请不要发布任何反动、色情信息，否则系统将查封账号，并将相关信息上报公安机关。</p><p>近期诈骗犯罪案件时有发生，为防止您经济蒙受损失，收到以熟人名义要求转账、汇款时，务必提高警惕以防上当受骗！</p>', '系统通告');
 INSERT INTO `chat_config` VALUES ('notice_notype', '1', '系统公告类型');
 INSERT INTO `chat_config` VALUES ('notice_status', 'Y', '系统通告开关');
 INSERT INTO `chat_config` VALUES ('sys_audit', 'N', '审核开关');
